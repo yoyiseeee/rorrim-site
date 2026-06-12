@@ -7,16 +7,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_BASE_PATH: /rorrim-site
@@ -30,27 +28,40 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Install Dependencies
         run: npm ci
 
       - name: Build
         run: npm run build
 
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./out
+      - name: Fix exported CSS asset paths
+        run: |
+          perl -pi -e 's#url\(/fonts/#url(/rorrim-site/fonts/#g; s#url\(/alphabet/fonts/#url(/rorrim-site/alphabet/fonts/#g; s#url\(/cursors/#url(/rorrim-site/cursors/#g' out/_next/static/chunks/*.css
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Prepare slim Pages bundle
+        run: |
+          rm -rf /tmp/rorrim-site-pages
+          mkdir -p /tmp/rorrim-site-pages
+          rsync -a --delete \
+            --exclude '.DS_Store' \
+            --exclude '/noise/' \
+            --exclude '/spaces/' \
+            --exclude '/noclip/' \
+            --exclude '/noclipping/ikea-mirror-catalogue/' \
+            --exclude '/noclipping/axis-demo/**/*.png' \
+            out/ /tmp/rorrim-site-pages/
+          touch /tmp/rorrim-site-pages/.nojekyll
+
+      - name: Publish gh-pages branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd /tmp/rorrim-site-pages
+          git init
+          git checkout -B gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Deploy static site to GitHub Pages"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin gh-pages
