@@ -1,0 +1,4265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mirror Alphabet</title>
+<style>
+  :root {
+    --mirror-font-stack: "Antique-Olive-Std-Roman_3869", sans-serif;
+    --glyph-font-stack: "rorrim", sans-serif;
+  }
+
+  @font-face {
+    font-family: "Antique-Olive-Std-Roman_3869";
+    src: url("./fonts/Antique-Olive%20Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "rorrim";
+    src: url("./fonts/rorrim-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "FZFWZhuZGDSHJW";
+    src: url("../fonts/FZFWZhuZGDSHJW.TTF") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "AkzidenzGrotesk";
+    src: url("../fonts/AkzidenzGrotesk-Medium.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body,
+  main,
+  svg,
+  svg * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  html, body {
+    margin: 0;
+    background: #ffffff;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--mirror-font-stack);
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: none;
+  }
+
+  main {
+    width: 100vw;
+    height: 100vh;
+    background: #ffffff;
+    cursor: none;
+    position: relative;
+  }
+
+  svg {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background: #ffffff;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    outline: none;
+    cursor: none;
+  }
+
+  .mirror-axis {
+    stroke: #fe3b1f;
+    stroke-width: 8;
+    stroke-linecap: butt;
+    fill: none;
+  }
+
+  .mirror-hit {
+    stroke: transparent;
+    stroke-width: 28;
+    stroke-linecap: round;
+    cursor: none;
+  }
+
+  .glyph-layer {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .material-layer {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .material-node,
+  .material-frame {
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .material-frame {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .material-drag-surface {
+    fill: transparent;
+    pointer-events: all;
+  }
+
+  .text-layer {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .text-content {
+    width: 100%;
+    max-width: 100%;
+    color: #111111;
+    font-family: var(--mirror-font-stack);
+    font-weight: 400;
+    line-height: 1.02;
+    text-align: center;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow: visible;
+  }
+
+  .hidden-input {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .control-panel {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    width: 304px;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
+    cursor: default;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #111111;
+    font-family: var(--mirror-font-stack);
+    display: none;
+  }
+
+  .control-panel.is-open {
+    display: block;
+  }
+
+  .control-panel h2 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .control-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .control-stack {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .control-field {
+    display: grid;
+    gap: 4px;
+  }
+
+  .control-field label {
+    font-size: 11px;
+  }
+
+  .control-field input,
+  .control-field select,
+  .control-field button,
+  .control-field textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    background: #ffffff;
+    color: #111111;
+    font-family: var(--mirror-font-stack);
+    font-size: inherit;
+    font-weight: 400;
+  }
+
+  .control-field input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+  }
+
+  .control-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .button-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .button-row.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .auto-text-content {
+    height: 108px;
+    resize: vertical;
+    font-size: 11px;
+    line-height: 1.45;
+    box-sizing: border-box;
+  }
+
+  .status-box {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    min-height: 88px;
+    white-space: pre-wrap;
+  }
+
+  .cursor-arrow {
+    pointer-events: none;
+    display: none;
+  }
+
+  .cursor-arrow path {
+    fill: #fe3b1f;
+  }
+
+  .export-preview-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 6vw;
+    background: rgba(255, 255, 255, 0.92);
+    cursor: default;
+  }
+
+  .export-preview-overlay.is-open {
+    display: flex;
+  }
+
+  .export-preview-card {
+    width: min(82vw, 960px);
+    display: grid;
+    gap: 10px;
+    color: #111111;
+    font-family: var(--mirror-font-stack);
+    font-size: 12px;
+  }
+
+  .export-preview-surface {
+    aspect-ratio: 2 / 1;
+    background: #ffffff;
+    overflow: hidden;
+    border: 1px solid rgba(211, 34, 34, 0.38);
+  }
+
+  .export-preview-surface svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .export-preview-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .export-preview-actions button {
+    padding: 8px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    background: #ffffff;
+    color: #111111;
+    font-family: var(--mirror-font-stack);
+    font-size: 12px;
+  }
+
+  body.print-exporting .control-panel,
+  body.print-exporting .export-preview-overlay,
+  body.print-exporting .cursor-arrow,
+  body.print-exporting .mirror-hit {
+    display: none !important;
+  }
+
+  @media print {
+    @page {
+      size: landscape;
+      margin: 0;
+    }
+
+    html,
+    body,
+    main,
+    svg {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .control-panel,
+    .export-preview-overlay,
+    .cursor-arrow,
+    .mirror-hit {
+      display: none !important;
+    }
+  }
+
+  /* ── Q&A overlay ─────────────────────────────────────────────── */
+  .qa-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 38px;
+    gap: 4px;
+    transition: opacity 360ms ease;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .qa-overlay.qa-disabled {
+    display: none;
+  }
+
+  .qa-question-zh,
+  .qa-choice-zh,
+  .qa-hint-zh,
+  .qa-final-zh {
+    font-size: 18px;
+    line-height: 1.35;
+    color: #111111;
+    text-align: center;
+    -webkit-text-stroke: 4px #ffffff;
+    paint-order: stroke fill;
+  }
+
+  .qa-question-en,
+  .qa-choice-en,
+  .qa-hint-en,
+  .qa-final-en {
+    font-size: 16px;
+    line-height: 1.35;
+    color: #111111;
+    text-align: center;
+    -webkit-text-stroke: 4px #ffffff;
+    paint-order: stroke fill;
+  }
+
+  .qa-question-zh {
+    font-family: "FZFWZhuZGDSHJW", serif;
+    font-weight: 400;
+    white-space: pre-line;
+  }
+
+  .qa-question-en {
+    font-family: "AkzidenzGrotesk", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: pre-line;
+  }
+
+  .qa-choices {
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    transform: translate(-50%, -50%);
+    z-index: 22;
+    display: grid;
+    gap: 14px;
+    width: 98vw;
+    text-align: center;
+    pointer-events: auto;
+  }
+
+  .qa-choices.qa-disabled {
+    display: none;
+  }
+
+  .qa-choice {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.38em;
+    color: #111111;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    white-space: nowrap;
+    transition: color 140ms ease, opacity 360ms ease, transform 360ms ease;
+  }
+
+  .qa-choice.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .qa-choice-zh {
+    font-family: "FZFWZhuZGDSHJW", serif;
+    font-weight: 400;
+  }
+
+  .qa-choice-en {
+    font-family: "AkzidenzGrotesk", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .qa-choice:hover {
+    color: #fe3b1f;
+    opacity: 0.78;
+    transform: translateX(4px);
+    animation: qaChoiceFlicker 720ms steps(2, end) infinite;
+  }
+
+  .qa-choice.is-disabled {
+    opacity: 0.36;
+    cursor: default;
+    animation: none;
+    pointer-events: none;
+  }
+
+  .qa-choice.is-exiting {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    animation: none;
+  }
+
+  .qa-final-response {
+    position: absolute;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 24;
+    display: none;
+    color: #111111;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .qa-final-response .qa-final-zh,
+  .qa-final-response .qa-final-en {
+    color: #111111;
+  }
+
+  .qa-final-response.is-visible {
+    display: block;
+  }
+
+  .qa-final-response.is-blinking {
+    animation: qaFinalBlink 620ms steps(2, end) infinite;
+  }
+
+  @keyframes qaChoiceFlicker {
+    0%, 100% { opacity: 0.78; }
+    50% { opacity: 0.42; }
+  }
+
+  @keyframes qaFinalBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.18; }
+  }
+
+  @keyframes qaHintAlt {
+    0%   { opacity: 0; }
+    5%   { opacity: 1; }
+    45%  { opacity: 1; }
+    50%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes hintBreath {
+    0%, 30%, 100% { opacity: 1; }
+    65% { opacity: 0; }
+  }
+
+  #qaHint.qa-disabled {
+    display: none;
+  }
+
+  .qa-hint-card {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: grid;
+    gap: 2px;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 1;
+    transition: opacity 360ms ease, transform 360ms ease;
+    animation: hintBreath 1050ms ease-in-out infinite;
+  }
+
+  #qaHint.is-swapping .qa-hint-card {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+    animation: none;
+  }
+
+  .qa-hint-card-b {
+    display: none;
+  }
+
+  .qa-hint-zh {
+    font-family: "FZFWZhuZGDSHJW", serif;
+    font-weight: 400;
+  }
+
+  .qa-hint-en {
+    font-family: "AkzidenzGrotesk", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .qa-progress {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    z-index: 26;
+    height: 8px;
+    background: rgba(17, 17, 17, 0.12);
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .qa-progress-fill {
+    width: 100%;
+    height: 100%;
+    background: #fe3b1f;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── Opening sequence ─────────────────────────────────────────────── */
+  #splashScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 800ms ease;
+    pointer-events: all;
+  }
+
+  #splashScreen.splash-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .opening-frame {
+    position: relative;
+    width: 100vw;
+    max-width: calc(100vh * 3680 / 972);
+    aspect-ratio: 3680 / 972;
+  }
+
+  .opening-frame img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+
+  .opening-text-box {
+    position: absolute;
+    left: 3.45%;
+    top: 16.3%;
+    width: 93.1%;
+    height: 67.7%;
+    padding: 0.8% 0.6%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #000000;
+    text-align: center;
+    white-space: pre;
+    line-height: var(--opening-line-height, 1.04);
+    letter-spacing: 0;
+    font-size: var(--opening-font-size, min(3.72vw, 14.1vh));
+    font-weight: 400;
+    font-family: var(--mirror-font-stack);
+    pointer-events: none;
+  }
+
+</style>
+</head>
+<body>
+<main>
+  <div id="splashScreen" aria-hidden="true">
+    <div class="opening-frame">
+      <img src="./rorrim-Regular-Blank.png" alt="" draggable="false" />
+      <div id="openingTextBox" class="opening-text-box"></div>
+    </div>
+  </div>
+  <aside class="control-panel" id="autoPanel">
+    <h2>Auto Text</h2>
+    <div class="control-field">
+      <label for="autoTextContent">Text (editable)</label>
+      <textarea id="autoTextContent" class="auto-text-content" spellcheck="false">THE PRECESSION OF SIMULACRA The simulacrum is never what hides the truth - it is truth that hides the fact that there is none. The simulacrum is true. -Ecclesiastes If once we were able to view the Borges fable in which the cartographers of the Empire draw up a map so detailed that it ends up covering the territory exactly (the decline of the Empire witnesses the fraying of this map, little by little, and its fall into ruins, though some shreds are still discernible in the deserts - the metaphysical beauty of this ruined abstraction testifying to a pride equal to the Empire and rotting like a carcass, returning to the substance of the soil, a bit as the double ends by being confused with the real through aging) - as the most beautiful allegory of simulation, this fable has now come full circle for us, and possesses nothing but the discrete charm of second-order simulacra.*1 Today abstraction is no longer that of the map, the double, the mirror, or the concept. Simulation is no longer that of a territory, a referential being, or a substance. It is the generation by models of a real without origin or reality: a hyperreal.</textarea>
+    </div>
+    <div class="button-row" style="margin-top:8px">
+      <div class="control-field"><button id="autoTextStartButton" type="button">Start</button></div>
+      <div class="control-field"><button id="autoTextStopButton" type="button">Stop</button></div>
+    </div>
+    <div class="status-box" id="autoTextStatus" style="min-height:28px">Ready</div>
+    <hr style="margin:14px 0 12px;border:none;border-top:1px solid rgba(0,0,0,0.1)">
+    <h2>Auto Search</h2>
+    <div class="control-row">
+      <div class="control-field">
+        <label for="sourceChar">Mother</label>
+        <input id="sourceChar" type="text" value="C" maxlength="1">
+      </div>
+      <div class="control-field">
+        <label for="targetChar">Target</label>
+        <input id="targetChar" type="text" value="O" maxlength="1">
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-field">
+        <label for="mirrorType">Mirror Axis</label>
+        <select id="mirrorType">
+          <option value="all">All Presets</option>
+          <option value="current">Current Axis</option>
+          <option value="horizontal">Horizontal</option>
+          <option value="vertical">Vertical</option>
+          <option value="diagonal">Diagonal</option>
+          <option value="antiDiagonal">Anti-Diagonal</option>
+        </select>
+      </div>
+      <div class="control-field">
+        <label for="previewMode">Preview</label>
+        <select id="previewMode">
+          <option value="current">Current Result</option>
+          <option value="mother">Mother</option>
+          <option value="target">Target</option>
+          <option value="overlay">Contour Overlay</option>
+          <option value="skeleton">Skeleton Overlay</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-field">
+        <label for="threshold">Threshold</label>
+        <input id="threshold" type="number" min="0" max="1" step="0.01" value="0.72">
+      </div>
+      <div class="control-field">
+        <label for="searchStep">Coarse Step</label>
+        <input id="searchStep" type="number" min="2" max="30" step="1" value="10">
+      </div>
+    </div>
+    <div class="control-stack">
+      <div class="control-inline">
+        <input id="allowRotation" type="checkbox" checked>
+        <label for="allowRotation">Allow Rotation</label>
+      </div>
+      <div class="control-inline">
+        <input id="allowScale" type="checkbox" checked>
+        <label for="allowScale">Allow Scale</label>
+      </div>
+      <div class="control-inline">
+        <input id="allowTranslate" type="checkbox" checked>
+        <label for="allowTranslate">Allow Translate</label>
+      </div>
+      <div class="control-inline">
+        <input id="allowFlips" type="checkbox" checked>
+        <label for="allowFlips">Allow Source Flips</label>
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-field">
+        <label for="weightContour">Contour Weight</label>
+        <input id="weightContour" type="number" min="0" max="5" step="0.1" value="1.4">
+      </div>
+      <div class="control-field">
+        <label for="weightSkeleton">Skeleton Weight</label>
+        <input id="weightSkeleton" type="number" min="0" max="5" step="0.1" value="1.1">
+      </div>
+    </div>
+    <div class="control-field">
+      <label for="weightFeature">Feature Weight</label>
+      <input id="weightFeature" type="number" min="0" max="5" step="0.1" value="1.0">
+    </div>
+    <div class="button-row">
+      <div class="control-field"><button id="runSearchButton" type="button">Run Search</button></div>
+      <div class="control-field"><button id="stopSearchButton" type="button">Stop</button></div>
+    </div>
+    <div class="button-row three">
+      <div class="control-field"><button id="exportSvgButton" type="button">Export SVG</button></div>
+      <div class="control-field"><button id="exportJsonButton" type="button">Export JSON</button></div>
+      <div class="control-field"><button id="exportCsvButton" type="button">Export CSV</button></div>
+    </div>
+    <div class="control-stack">
+      <div class="control-field">
+        <label for="assetInput">Upload Image / PDF</label>
+        <input id="assetInput" type="file" accept="image/png,image/jpeg,image/webp,application/pdf,.png,.jpg,.jpeg,.webp,.pdf">
+      </div>
+      <div class="control-row">
+        <div class="control-field">
+          <label for="assetScale">Asset Scale</label>
+          <input id="assetScale" type="number" min="0.05" max="8" step="0.05" value="1">
+        </div>
+        <div class="control-field">
+          <label for="assetRotation">Asset Rotation</label>
+          <input id="assetRotation" type="number" min="-360" max="360" step="1" value="0">
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="control-field">
+          <label for="assetX">Asset X</label>
+          <input id="assetX" type="number" step="1" value="600">
+        </div>
+        <div class="control-field">
+          <label for="assetY">Asset Y</label>
+          <input id="assetY" type="number" step="1" value="380">
+        </div>
+      </div>
+      <div class="control-field">
+        <button id="clearAssetButton" type="button">Clear Asset</button>
+      </div>
+    </div>
+    <div class="control-field">
+      <label for="exportPageSize">PDF Size</label>
+      <select id="exportPageSize">
+        <option value="screen">Screen / Browser Default</option>
+        <option value="book-spread-60x30" selected>60mm x 30mm / 2:1 Spread</option>
+      </select>
+      <button id="exportPdfButton" type="button">Preview Vector PDF</button>
+      <button id="exportPngButton" type="button">Export Print PNG 8x</button>
+      <button id="exportVectorSvgButton" type="button">Download Vector SVG</button>
+    </div>
+    <div class="status-box" id="searchStatus">Idle</div>
+  </aside>
+  <svg id="stage" viewBox="0 0 1200 760" aria-label="C reflection experiment" tabindex="0">
+    <defs>
+      <clipPath id="originalClip" clipPathUnits="userSpaceOnUse">
+        <polygon id="originalClipPolygon" points=""></polygon>
+      </clipPath>
+      <clipPath id="reflectionClip" clipPathUnits="userSpaceOnUse">
+        <polygon id="reflectionClipPolygon" points=""></polygon>
+      </clipPath>
+    </defs>
+    <g id="reflectionWrap" clip-path="url(#reflectionClip)">
+      <g id="reflectionMaterial"></g>
+      <g id="reflectionGlyph"></g>
+      <g id="reflectionText"></g>
+    </g>
+
+    <g id="originalWrap" clip-path="url(#originalClip)">
+      <g id="originalMaterial"></g>
+      <g id="originalGlyph"></g>
+      <g id="originalText"></g>
+    </g>
+
+    <g id="analysisLayer"></g>
+
+    <g id="mirrorGroup">
+      <path id="axisLine" class="mirror-axis" d="" stroke="#fe3b1f" stroke-width="8" stroke-linecap="butt" fill="none"></path>
+      <line id="axisHit" class="mirror-hit" x1="160" y1="280" x2="1040" y2="280"></line>
+    </g>
+    <g id="cursorArrow" class="cursor-arrow" aria-hidden="true">
+      <path d="M -2 -5.5 L 16 0 L -2 5.5 L 2.5 0 Z"></path>
+    </g>
+  </svg>
+  <div class="export-preview-overlay" id="exportPreviewOverlay" aria-hidden="true">
+    <div class="export-preview-card">
+      <div>Vector PDF Preview · 60mm x 30mm · 2:1</div>
+      <div class="export-preview-surface" id="exportPreviewSurface"></div>
+      <div class="export-preview-actions">
+        <button id="confirmExportPdfButton" type="button">Download Vector PDF</button>
+        <button id="cancelExportPreviewButton" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div id="qaOverlay" class="qa-overlay">
+    <div id="qaQuestionZh" class="qa-question-zh"></div>
+    <div id="qaQuestionEn" class="qa-question-en"></div>
+  </div>
+  <div id="qaChoices" class="qa-choices"></div>
+  <div id="qaFinalResponse" class="qa-final-response"></div>
+  <div id="qaHint">
+    <div class="qa-hint-card qa-hint-card-a">
+      <span class="qa-hint-zh">请用键盘键入你的答案（区分大小写）</span>
+      <span class="qa-hint-en">Type your answer using the keyboard — case matters</span>
+    </div>
+    <div class="qa-hint-card qa-hint-card-b">
+      <span class="qa-hint-zh">请尝试拖动画面中的镜面红线</span>
+      <span class="qa-hint-en">Try dragging the red mirror line on the screen</span>
+    </div>
+  </div>
+  <div id="qaProgress" class="qa-progress" aria-hidden="true"></div>
+  <textarea id="textInput" class="hidden-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+</main>
+
+<script src="./font-outlines.js"></script>
+<script>
+  const autoPanel = document.getElementById('autoPanel');
+  const autoTextContentEl = document.getElementById('autoTextContent');
+  const autoTextStartButton = document.getElementById('autoTextStartButton');
+  const autoTextStopButton = document.getElementById('autoTextStopButton');
+  const autoTextStatusEl = document.getElementById('autoTextStatus');
+  const stage = document.getElementById('stage');
+  const reflectionGlyph = document.getElementById('reflectionGlyph');
+  const reflectionText = document.getElementById('reflectionText');
+  const originalGlyph = document.getElementById('originalGlyph');
+  const originalText = document.getElementById('originalText');
+  const reflectionMaterial = document.getElementById('reflectionMaterial');
+  const originalMaterial = document.getElementById('originalMaterial');
+  const originalWrap = document.getElementById('originalWrap');
+  const reflectionWrap = document.getElementById('reflectionWrap');
+  const analysisLayer = document.getElementById('analysisLayer');
+  const originalClipPolygon = document.getElementById('originalClipPolygon');
+  const reflectionClipPolygon = document.getElementById('reflectionClipPolygon');
+  const axisLine = document.getElementById('axisLine');
+  const axisHit = document.getElementById('axisHit');
+  const textInput = document.getElementById('textInput');
+  const qaChoicesEl = document.getElementById('qaChoices');
+  const qaFinalResponseEl = document.getElementById('qaFinalResponse');
+  const qaProgressEl = document.getElementById('qaProgress');
+  const openingTextBox = document.getElementById('openingTextBox');
+  const cursorArrow = document.getElementById('cursorArrow');
+  const exportPdfButton = document.getElementById('exportPdfButton');
+  const exportPngButton = document.getElementById('exportPngButton');
+  const exportVectorSvgButton = document.getElementById('exportVectorSvgButton');
+  const exportPageSize = document.getElementById('exportPageSize');
+  const exportPreviewOverlay = document.getElementById('exportPreviewOverlay');
+  const exportPreviewSurface = document.getElementById('exportPreviewSurface');
+  const confirmExportPdfButton = document.getElementById('confirmExportPdfButton');
+  const cancelExportPreviewButton = document.getElementById('cancelExportPreviewButton');
+  const assetInput = document.getElementById('assetInput');
+  const assetScaleInput = document.getElementById('assetScale');
+  const assetRotationInput = document.getElementById('assetRotation');
+  const assetXInput = document.getElementById('assetX');
+  const assetYInput = document.getElementById('assetY');
+  const clearAssetButton = document.getElementById('clearAssetButton');
+
+  const STAGE = { width: 1200, height: 760 };
+  const EXPORT_STAGE = { width: 1200, height: 600 };
+  const EXPORT_SCALE = 8;
+  const EXPORT_PRINT_PNG = {
+    width: EXPORT_STAGE.width * EXPORT_SCALE,
+    height: EXPORT_STAGE.height * EXPORT_SCALE,
+    dpi: Math.round((EXPORT_STAGE.width * EXPORT_SCALE) / (60 / 25.4)),
+  };
+  const MIRROR_RED = '#fe3b1f';
+  const EXTENT = 8000;
+  const RECURSIVE_EXTENT = 24000;
+  const BOUNDARY_CLEARANCE = 7;
+  const DEFAULT_TEXT = 'looking-glass';
+  const ANTIQUE_FONT_FAMILY = 'Antique-Olive-Std-Roman_3869';
+  const RORRIM_FONT_FAMILY = 'rorrim';
+  const FONT_MATURATION_MS = 500;
+  const OPENING_SETTINGS = {
+    enabled: true,
+    firstTypingMs: 6000,
+    secondTypingMs: 6000,
+    thirdTypingMs: 6000,
+    typingRandomness: 0.38,
+    fadeOutMs: 800,
+    holdMs: 650,
+    transitionRenderMs: 80,
+    firstFontScale: 8,
+    firstLineHeight: 1.05,
+    secondFontScale: 1,
+    secondLineHeight: 1.22,
+    thirdFontScale: 8,
+    thirdLineHeight: 0.96,
+  };
+  const OPENING_ALPHABET_TEXT = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789';
+  const OPENING_TURN_TEXT = 'It\u2019s your turn';
+  let mode = 'text';
+  let textValue = DEFAULT_TEXT;
+  let openingActive = OPENING_SETTINGS.enabled;
+
+  // ── Q&A mode state ───────────────────────────────────────────────
+  let qaEnabled = true;
+  let currentQuestionId = 'M1';
+  let answeredCount = 0;
+  let visitedQuestionIds = [];
+  let qaAnswerStart = 0; // index in textValue where current question's answer begins
+  let qaChoiceLocked = false;
+  let qaMachineTyping = false;
+  let qaAutoTypingTimer = null;
+  let currentPromptIndex = 0;
+  let inputValue = '';
+  let submittedTexts = [];
+  let abcCollected = { A: false, B: false, C: false };
+  let infectionTriggered = false;
+  let alphabetInputLocked = false;
+  let alphabetInputComposing = false;
+  let tutorialActive = false;
+  let tutorialStep = 'move';
+  let tutorialReadyForQuestions = false;
+  let hintSwapToken = 0;
+  let madnessFrame = null;
+  let madnessStopTimer = null;
+  let madnessAnchorTimer = null;
+  let madnessLevel = 0;
+  let finalPendingMessage = null;
+  const triggeredMadnessScores = new Set();
+  const AUTO_ALICE_RULE_TEXT = `ALiCe wAs beginning to get very tired of sitting By her sister on the BAnk, And of hAving nothing to do: onCe or twiCe she hAd peeped into the Book her sister wAs reAding, But it hAd no piCtures or ConversAtions in it, 'And whAt is the use of A Book,' thought ALiCe 'without piCtures or ConversAtion?'
+
+So she wAs Considering in her own mind (As well As she Could, for the hot dAy mAde her feel very sleepy And stupid), whether the pleAsure of mAking A dAisy-ChAin would Be worth the trouBle of getting up And piCking the dAisies, when suddenly A White RABBit with pink eyes rAn Close By her.
+
+There wAs nothing so very remArkABle in thAt; nor did ALiCe think it so very muCh out of the wAy to heAr the RABBit sAy to itself, 'Oh deAr! Oh deAr! I shAll Be lAte!' (when she thought it over AfterwArds, it oCCurred to her thAt she ought to hAve wondered At this, But At the time it All seemed quite nAturAl); But when the RABBit ACtuAlly took A wAtCh out of its wAistCoAt-poCket, And looked At it, And then hurried on, ALiCe stArted to her feet, for it flAshed ACross her mind thAt she hAd never Before seen A rABBit with either A wAistCoAt-poCket, or A wAtCh to tAke out of it, And Burning with Curiosity, she rAn ACross the field After it, And fortunAtely wAs just in time to see it pop down A lArge rABBit-hole under the hedge.`;
+  const AUTO_RULE_TEXT = 'THE LETTER REMAINS ITSELF.';
+  const ALPHABET_INPUT_PROMPTS = [
+    { id: 'name', zh: '你叫什么？', en: 'What is your name?' },
+    { id: 'gender', zh: '你的性别是什么？', en: 'What is your gender?' },
+    { id: 'room', zh: '你现在在哪个房间？', en: 'What room are you in?' },
+    { id: 'mirror', zh: '你在镜子里看见了什么？', en: 'What do you see in the mirror?' },
+    { id: 'direction', zh: '你想往哪个方向走？', en: 'Which direction do you want to go?' },
+    { id: 'letter', zh: '输入一个你还认识的字母。', en: 'Type a letter you still recognize.' },
+    { id: 'word', zh: '输入一个你不想丢失的词。', en: 'Type a word you do not want to lose.' },
+    { id: 'exit', zh: '你想离开这里吗？', en: 'Do you want to leave here?' },
+  ];
+
+  const QA_QUESTIONS = [
+    {
+      id: 1,
+      en: 'A mirror refleCts your fACe. WhAt exACtly does it reverse?',
+      zh: '镜子反射你的脸。它究竟反转的是什么？',
+      rationale: '镜子悖论——前后取反，不是左右。',
+      choices: [
+        { en: 'Left And right', zh: '左和右' },
+        { en: 'Up And down', zh: '上和下' },
+        { en: 'Front And BACk', zh: '前和后', correct: true },
+      ],
+    },
+    {
+      id: 2,
+      en: 'In the Looking-GlAss World, if you wAnt to move towArd A destinAtion, you must —',
+      zh: '在镜中世界，如果你想朝目的地移动，你必须——',
+      rationale: '所有地理位置和物理动作都是反向的。',
+      choices: [
+        { en: 'Move fAster', zh: '移动得更快' },
+        { en: 'Stop And wAit', zh: '停下来等待' },
+        { en: 'WAlk in the opposite direCtion', zh: '朝反方向走', correct: true },
+      ],
+    },
+    {
+      id: 3,
+      en: 'A letter is A mArk left By A humAn hAnd. In the mirror, it BeComes —',
+      zh: '一个字母是人类之手留下的痕迹。在镜子里，它变成了——',
+      rationale: '字母体系能在特定时刻创造出人类在场的幻觉——幻觉的本质是幽灵。',
+      choices: [
+        { en: 'An error', zh: '一个错误' },
+        { en: 'A symBol', zh: '一个符号' },
+        { en: 'A ghost of itself', zh: '它自己的幽灵', correct: true },
+      ],
+    },
+    {
+      id: 4,
+      en: 'Why do humAns need An AlphABet At All?',
+      zh: '人类为什么需要字母表？',
+      rationale: '字母是人类有限生命寻找载体的行为，不只是信息工具。',
+      choices: [
+        { en: 'To CommuniCAte informAtion', zh: '传递信息' },
+        { en: 'To reCord history', zh: '记录历史' },
+        { en: 'To leAve A trACe of their existenCe ACross time', zh: '在时间中留下存在的痕迹', correct: true },
+      ],
+    },
+    {
+      id: 5,
+      en: 'WhAt mAkes A letter different from Any other mArk or shApe?',
+      zh: '是什么让一个字母区别于其他任何标记或形状？',
+      rationale: '动机决定一切——NoClipping规则在字母起源上的投影。',
+      choices: [
+        { en: 'Its visuAl Complexity', zh: '它的视觉复杂度' },
+        { en: 'The intention Behind the hAnd thAt mAde it', zh: '制造它的那只手背后的意图', correct: true },
+        { en: 'Its Age', zh: '它的年龄' },
+      ],
+    },
+    {
+      id: 6,
+      en: 'CAn A mAChine CreAte A letter thAt CArries the sAme weight As A humAn-mAde one?',
+      zh: '机器能创造出与人类制造的字母具有同等分量的字母吗？',
+      rationale: 'AI造不出有肌理的字母，因为它没有要终结的生命。',
+      choices: [
+        { en: 'Yes, if the output is identiCAl', zh: '可以，如果输出结果相同的话' },
+        { en: 'Yes, with enough trAining dAtA', zh: '可以，只要有足够的训练数据' },
+        { en: 'No — it hAs no finite life to give the letter urgenCy', zh: '不能——它没有赋予字母紧迫感的有限生命', correct: true },
+      ],
+    },
+    {
+      id: 7,
+      en: 'The mirror AlphABet in the Looking-GlAss World is Built from three mother letters: A, B, And C. Why these three?',
+      zh: '镜中世界的镜像字母表由三个母字母构成：A、B和C。为什么是这三个？',
+      rationale: 'ABC是古董体，其余字符都是重复这三个字母的局部组成的新字体。',
+      choices: [
+        { en: 'They Are the first three letters of every AlphABet', zh: '它们是每个字母表的前三个字母' },
+        { en: 'They ContAin All the BAsiC strokes from whiCh other letters Are derived', zh: '它们包含了派生其他字母的所有基本笔画', correct: true },
+        { en: 'They Are the eAsiest to mirror', zh: '它们是最容易镜像的' },
+      ],
+    },
+    {
+      id: 8,
+      en: 'When you mirror A letter, whAt ChAnges And whAt stAys the sAme?',
+      zh: '当你镜像一个字母时，什么改变了，什么保持不变？',
+      rationale: '镜像字母是原字母穿过镜面的形态，不是新字母，是同一字母的另一个状态。',
+      choices: [
+        { en: 'Everything ChAnges', zh: '一切都改变了' },
+        { en: 'Nothing ChAnges — it is still the sAme letter', zh: '什么都没变——它仍然是同一个字母' },
+        { en: 'Its orientAtion ChAnges, But its identity remAins', zh: '方向改变了，但身份保持不变', correct: true },
+      ],
+    },
+    {
+      id: 9,
+      en: 'In the mirror AlphABet, A reversed "A" still meAns "A." Why?',
+      zh: '在镜像字母表中，一个反转的"A"仍然代表"A"。为什么？',
+      rationale: '字母的意义不在形状，在于人类赋予它的意图和记忆。',
+      choices: [
+        { en: 'BeCAuse the reAder CorreCts it mentAlly', zh: '因为读者在脑中纠正了它' },
+        { en: 'BeCAuse identity is deeper thAn orientAtion', zh: '因为身份比方向更深层', correct: true },
+        { en: 'BeCAuse it is A mistAke', zh: '因为这是一个错误' },
+      ],
+    },
+    {
+      id: 10,
+      en: 'If A, B, And C Are the mother letters, whAt Are the other 23 letters of the AlphABet?',
+      zh: '如果A、B、C是母字母，那么字母表中其他23个字母是什么？',
+      rationale: '剩余字母都是重复这三个字母的局部组成的新字体。',
+      choices: [
+        { en: 'Independent inventions', zh: '独立的发明' },
+        { en: 'TrAnslAtions from other lAnguAges', zh: '来自其他语言的翻译' },
+        { en: 'FrAgments And reComBinAtions of A, B, And C', zh: 'A、B、C的碎片与重组', correct: true },
+      ],
+    },
+    {
+      id: 11,
+      en: 'WhAt hAppens to A letter when it is Broken into frAgments?',
+      zh: '当一个字母被分解成碎片时会发生什么？',
+      rationale: '碎片本身携带母字的基因，仍然是可以重新生成意义的单位。',
+      choices: [
+        { en: 'It loses All meAning', zh: '它失去所有意义' },
+        { en: 'It BeComes the rAw mAteriAl for new letters', zh: '它成为新字母的原材料', correct: true },
+        { en: 'It BeComes noise', zh: '它变成噪声' },
+      ],
+    },
+    {
+      id: 12,
+      en: 'The mirror AlphABet uses pArts of A, B, And C to Build new glyphs. WhAt is this proCess Closest to?',
+      zh: '镜像字母表用A、B、C的局部来构建新字形。这个过程最接近于什么？',
+      rationale: '镜像不是复制，是通过反射制造陌生感的过程。',
+      choices: [
+        { en: 'TrAnslAtion', zh: '翻译' },
+        { en: 'Forgery', zh: '伪造' },
+        { en: 'RefleCtion — turning the fAmiliAr into the unreCognizABle', zh: '反射——将熟悉的变成无法辨认的', correct: true },
+      ],
+    },
+    {
+      id: 13,
+      en: 'CAn you reAd the mirror AlphABet without leArning it first?',
+      zh: '你能在没有先学习的情况下读懂镜像字母表吗？',
+      rationale: '镜像字母创造的是人类在场的幻觉，不是清晰的信息，是一种感知残留。',
+      choices: [
+        { en: 'Yes — instinCt guides reAding', zh: '可以——本能引导阅读' },
+        { en: 'No — But you CAn feel thAt it onCe meAnt something', zh: '不能——但你能感觉到它曾经意味着某些东西', correct: true },
+        { en: 'No — it is Completely unreAdABle', zh: '不能——它完全无法阅读' },
+      ],
+    },
+    {
+      id: 14,
+      en: 'The mAnifesto sAys the AlphABet "CAn CreAte the illusion of humAn presenCe." When does this illusion work?',
+      zh: '宣言说字母体系"能在特定时刻创造出人类在场的幻觉"。这个幻觉在什么时候生效？',
+      rationale: '幻觉的产生需要读者的遗忘——这是拟像机制的微缩版本。',
+      choices: [
+        { en: 'When the letters Are perfeCtly formed', zh: '当字母形态完美时' },
+        { en: 'When they Are reAd quiCkly', zh: '当它们被快速阅读时' },
+        { en: 'When the reAder forgets they Are looking At mArks, not A person', zh: '当读者忘记他们在看标记而不是一个人时', correct: true },
+      ],
+    },
+    {
+      id: 15,
+      en: 'WhAt is the differenCe Between A letter And the sound it represents?',
+      zh: '字母和它所代表的声音之间有什么区别？',
+      rationale: '字母是有限生命的物质痕迹，声音是无形的延伸——躯体与幽灵的关系。',
+      choices: [
+        { en: 'Nothing — they Are the sAme thing', zh: '没有——它们是同一件事' },
+        { en: 'The letter is the originAl, the sound is the Copy', zh: '字母是原版，声音是副本' },
+        { en: 'The letter is A Body, the sound is the ghost', zh: '字母是躯体，声音是幽灵', correct: true },
+      ],
+    },
+    {
+      id: 16,
+      en: 'When A letter is mirrored, does the illusion of humAn presenCe BeCome stronger or weAker?',
+      zh: '当一个字母被镜像时，人类在场的幻觉会变得更强还是更弱？',
+      rationale: '镜像字母制造的是恐惑感（unCAnny）——熟悉中的陌生，这比清晰的在场更有力量。',
+      choices: [
+        { en: 'Stronger — it looks more Complex', zh: '更强——它看起来更复杂' },
+        { en: 'WeAker — it BeComes unreAdABle', zh: '更弱——它变得无法阅读' },
+        { en: 'Neither — it BeComes unCAnny', zh: '都不是——它变得令人不安', correct: true },
+      ],
+    },
+    {
+      id: 17,
+      en: 'The AlphABetiC system CreAtes An illusion. Who is Being deCeived?',
+      zh: '字母体系制造了一个幻觉。被欺骗的是谁？',
+      rationale: '幻觉是双向的，字母是两个有限生命之间的虚假桥梁。',
+      choices: [
+        { en: 'The reAder', zh: '读者' },
+        { en: 'The writer', zh: '写作者' },
+        { en: 'Both — the writer Believes they Are present, the reAder Believes they Are meeting someone', zh: '两者都是——写作者相信自己在场，读者相信自己正在遇见某人', correct: true },
+      ],
+    },
+    {
+      id: 18,
+      en: 'You Are Currently typing letters. Are they the originAl letters or their mirrors?',
+      zh: '你现在正在键入字母。它们是原始字母还是它们的镜像？',
+      rationale: '镜像是原始状态的一部分，没有任何字母存在于镜像之外。',
+      choices: [
+        { en: 'OriginAl', zh: '原始的' },
+        { en: 'ImpossiBle to know — every letter hAs AlwAys AlreAdy Been mirrored', zh: '无法知道——每个字母一直都已经被镜像过了', correct: true },
+        { en: 'Mirrors', zh: '镜像的' },
+      ],
+    },
+    {
+      id: 19,
+      en: 'Every letter you type leAves A trACe. Where does thAt trACe go?',
+      zh: '你键入的每个字母都留下一个痕迹。那个痕迹去了哪里？',
+      rationale: '字母穿过镜面，在另一个空间以反转形态延续。',
+      choices: [
+        { en: 'Into the sCreen', zh: '进入屏幕' },
+        { en: 'Into memory', zh: '进入记忆' },
+        { en: 'Into the looking-glAss world, where it exists As A mirror of your intention', zh: '进入镜中世界，在那里它作为你意图的镜像存在', correct: true },
+      ],
+    },
+    {
+      id: 20,
+      en: 'If you stop typing, do the letters you hAve AlreAdy typed still exist?',
+      zh: '如果你停止键入，你已经键入的字母还存在吗？',
+      rationale: '字母的存在依赖观者——没有阅读就没有在场的幻觉。',
+      choices: [
+        { en: 'No — they disAppeAr with the session', zh: '不——它们随着会话消失' },
+        { en: 'Yes — they Are stored permAnently', zh: '是——它们被永久存储' },
+        { en: 'Yes — But only As long As someone is reAding them', zh: '是——但只要还有人在阅读它们', correct: true },
+      ],
+    },
+    {
+      id: 21,
+      en: 'You hAve Been typing in the Looking-GlAss World. HAs the AlphABet ChAnged you, or hAve you ChAnged the AlphABet?',
+      zh: '你一直在镜中世界键入文字。是字母表改变了你，还是你改变了字母表？',
+      rationale: '书写者与字母之间没有单向关系，使用字母的行为本身就是制造幻觉的过程。',
+      choices: [
+        { en: 'The AlphABet ChAnged me', zh: '字母表改变了我' },
+        { en: 'I ChAnged the AlphABet', zh: '我改变了字母表' },
+        { en: 'The ACt of typing erAses the differenCe', zh: '键入这个行为抹去了这个区别', correct: true },
+      ],
+    },
+    {
+      id: 22,
+      final: true,
+      en: 'You hAve just desCriBed how the Looking-GlAss AlphABet wAs mAde.\nYou used letters to do it.\nHAve you pAssed through A mirror?',
+      zh: '你刚刚描述了镜像字母表是如何产生的。\n你用字母来完成了这件事。\n你是否已经穿过了一面镜子？',
+      choices: [
+        { en: 'YES', zh: '', branch: 'yes' },
+        { en: 'NO', zh: '', branch: 'no' },
+      ],
+    },
+  ];
+  const alphabetQuestionTree = {
+    startId: 'M1',
+    finalId: 'Q22',
+    nodes: {
+      M1: {
+        id: 'M1',
+        phase: 'mirror',
+        zh: '镜子究竟反转什么？',
+        en: 'What does a mirror reverse?',
+        options: [
+          { id: 'A', zh: '前和后', en: 'Front and back', nextId: 'M2' },
+          { id: 'B', zh: '左和右', en: 'Left and right', nextId: 'R3' },
+          { id: 'C', zh: '我无法确定', en: 'I cannot tell', nextId: 'R1' },
+        ],
+      },
+      R1: {
+        id: 'R1',
+        phase: 'mirror',
+        zh: '为什么不反转上下？',
+        en: 'Why not up and down?',
+        options: [
+          { id: 'A', zh: '因为身体习惯这样理解', en: 'Because the body is used to reading it that way', nextId: 'R2' },
+          { id: 'B', zh: '因为镜子只反转一个方向', en: 'Because the mirror reverses only one direction', nextId: 'R2' },
+          { id: 'C', zh: '因为我其实没有看见反转本身', en: 'Because I never actually saw the reversal itself', nextId: 'R2' },
+        ],
+      },
+      R2: {
+        id: 'R2',
+        phase: 'mirror',
+        zh: '另一个人，还是折回的空间？',
+        en: 'Person, or folded space?',
+        options: [
+          { id: 'A', zh: '另一个人', en: 'Another person', nextId: 'R3' },
+          { id: 'B', zh: '一个空间', en: 'A space', nextId: 'R3' },
+          { id: 'C', zh: '两者之间的东西', en: 'Something between the two', nextId: 'R3' },
+        ],
+      },
+      R3: {
+        id: 'R3',
+        phase: 'mirror',
+        zh: '机器把镜中空间测为真实吗？',
+        en: 'Machine measures mirror as real?',
+        options: [
+          { id: 'A', zh: '它仍然是图像', en: 'It is still an image', nextId: 'R4' },
+          { id: 'B', zh: '它已经像空间一样工作', en: 'It has begun to behave like space', nextId: 'R4' },
+          { id: 'C', zh: '它是被误读出来的空间', en: 'It is a space produced by misreading', nextId: 'R4' },
+        ],
+      },
+      R4: {
+        id: 'R4',
+        phase: 'mirror',
+        zh: '复制看起来可以进入。',
+        en: 'The copy appears enterable.',
+        options: [
+          { id: 'A', zh: '继续', en: 'Continue', nextId: 'M2' },
+          { id: 'B', zh: '进入', en: 'Enter', nextId: 'M2' },
+          { id: 'C', zh: '我还在看', en: 'I am still looking', nextId: 'M2' },
+        ],
+      },
+      M2: {
+        id: 'M2',
+        phase: 'direction',
+        zh: '如何靠近目的地？',
+        en: 'How to approach a destination?',
+        options: [
+          { id: 'A', zh: '朝反方向走', en: 'Walk opposite', nextId: 'M3' },
+          { id: 'B', zh: '走得更快', en: 'Move faster', nextId: 'D3' },
+          { id: 'C', zh: '停下来等待', en: 'Stop and wait', nextId: 'D1' },
+        ],
+      },
+      D1: {
+        id: 'D1',
+        phase: 'direction',
+        zh: '停下后画面还会动吗？',
+        en: 'If you stop, does the image move?',
+        options: [
+          { id: 'A', zh: '会', en: 'Yes', nextId: 'D2' },
+          { id: 'B', zh: '不会', en: 'No', nextId: 'D2' },
+          { id: 'C', zh: '只有系统还在移动', en: 'Only the system keeps moving', nextId: 'D2' },
+        ],
+      },
+      D2: {
+        id: 'D2',
+        phase: 'direction',
+        zh: '静止也是一种下坠吗？',
+        en: 'Is stillness also falling?',
+        options: [
+          { id: 'A', zh: '是', en: 'Yes', nextId: 'D3' },
+          { id: 'B', zh: '不是', en: 'No', nextId: 'D3' },
+          { id: 'C', zh: '只有当我无法停止时才是', en: 'Only when I can no longer stop it', nextId: 'D3' },
+        ],
+      },
+      D3: {
+        id: 'D3',
+        phase: 'direction',
+        zh: '方向还可信吗？',
+        en: 'Can direction still be trusted?',
+        options: [
+          { id: 'A', zh: '可以', en: 'Yes', nextId: 'D4' },
+          { id: 'B', zh: '不可以', en: 'No', nextId: 'D4' },
+          { id: 'C', zh: '方向已经变成了一种界面', en: 'Direction has become an interface', nextId: 'D4' },
+        ],
+      },
+      D4: {
+        id: 'D4',
+        phase: 'direction',
+        zh: '镜中世界重新定义“前”。',
+        en: 'Forward is redefined.',
+        options: [
+          { id: 'A', zh: '继续', en: 'Continue', nextId: 'M3' },
+          { id: 'B', zh: '反向继续', en: 'Continue backward', nextId: 'M3' },
+          { id: 'C', zh: '我已经偏离', en: 'I have already drifted', nextId: 'M3' },
+        ],
+      },
+      M3: {
+        id: 'M3',
+        phase: 'letter',
+        zh: '一个字母是什么？',
+        en: 'What is a letter?',
+        options: [
+          { id: 'A', zh: '有限生命的痕迹', en: 'A trace of finite life', nextId: 'M4' },
+          { id: 'B', zh: '声音的视觉符号', en: 'A visual symbol for sound', nextId: 'L3' },
+          { id: 'C', zh: '一个信息单位', en: 'A unit of information', nextId: 'L1' },
+        ],
+      },
+      L1: {
+        id: 'L1',
+        phase: 'letter',
+        zh: '为什么手写字让人感到在场？',
+        en: 'Why does handwriting feel present?',
+        options: [
+          { id: 'A', zh: '因为它不够标准', en: 'Because it is not standardized', nextId: 'L2' },
+          { id: 'B', zh: '因为它留下了身体的痕迹', en: 'Because it leaves a trace of the body', nextId: 'L2' },
+          { id: 'C', zh: '因为阅读会自动制造幻觉', en: 'Because reading automatically produces an illusion', nextId: 'L2' },
+        ],
+      },
+      L2: {
+        id: 'L2',
+        phase: 'letter',
+        zh: '机器能放入死亡与时间吗？',
+        en: 'Can a machine put death and time in letters?',
+        options: [
+          { id: 'A', zh: '可以，只要足够像', en: 'Yes, if they look convincing enough', nextId: 'L3' },
+          { id: 'B', zh: '不能，因为它没有有限的身体', en: 'No, because it has no finite body', nextId: 'L3' },
+          { id: 'C', zh: '它只能模拟这种重量', en: 'It can only simulate that weight', nextId: 'L3' },
+        ],
+      },
+      L3: {
+        id: 'L3',
+        phase: 'letter',
+        zh: '离场之人真的离开了吗？',
+        en: 'Has the absent person truly left?',
+        options: [
+          { id: 'A', zh: '是的', en: 'Yes', nextId: 'L4' },
+          { id: 'B', zh: '没有', en: 'No', nextId: 'L4' },
+          { id: 'C', zh: '他们只在阅读时回来', en: 'They return only in the moment of reading', nextId: 'L4' },
+        ],
+      },
+      L4: {
+        id: 'L4',
+        phase: 'letter',
+        zh: '字母让缺席可见。',
+        en: 'Letters make absence visible.',
+        options: [
+          { id: 'A', zh: '继续', en: 'Continue', nextId: 'M4' },
+          { id: 'B', zh: '阅读', en: 'Read', nextId: 'M4' },
+          { id: 'C', zh: '让它继续打字', en: 'Let it keep typing', nextId: 'M4' },
+        ],
+      },
+      M4: {
+        id: 'M4',
+        phase: 'presence',
+        zh: '字母制造的最强幻觉是什么？',
+        en: 'Strongest illusion of letters?',
+        options: [
+          { id: 'A', zh: '某个人仍然在这里', en: 'Someone is still here', nextId: 'Q22' },
+          { id: 'B', zh: '信息正在被传递', en: 'Information is being transmitted', nextId: 'P4' },
+          { id: 'C', zh: '图像是稳定的', en: 'The image is stable', nextId: 'P1' },
+        ],
+      },
+      P1: {
+        id: 'P1',
+        phase: 'presence',
+        zh: '无声文字为何能被听见？',
+        en: 'Why can silent writing be heard?',
+        options: [
+          { id: 'A', zh: '因为我在脑中朗读', en: 'Because I read it in my head', nextId: 'P2' },
+          { id: 'B', zh: '因为文字替代了声音', en: 'Because writing replaces voice', nextId: 'P2' },
+          { id: 'C', zh: '因为阅读制造了一个说话者', en: 'Because reading invents a speaker', nextId: 'P2' },
+        ],
+      },
+      P2: {
+        id: 'P2',
+        phase: 'presence',
+        zh: '这个说话者在哪里？',
+        en: 'Where is this speaker?',
+        options: [
+          { id: 'A', zh: '在文字里', en: 'Inside the text', nextId: 'P3' },
+          { id: 'B', zh: '在我脑中', en: 'Inside my mind', nextId: 'P3' },
+          { id: 'C', zh: '在我和文字之间', en: 'Between me and the text', nextId: 'P3' },
+        ],
+      },
+      P3: {
+        id: 'P3',
+        phase: 'presence',
+        zh: '不存在为何仍被回应？',
+        en: 'Why respond to what does not exist?',
+        options: [
+          { id: 'A', zh: '因为我相信文字', en: 'Because I believe the text', nextId: 'P4' },
+          { id: 'B', zh: '因为我已经进入它的节奏', en: 'Because I have entered its rhythm', nextId: 'P4' },
+          { id: 'C', zh: '因为回应本身已经发生', en: 'Because the response has already happened', nextId: 'P4' },
+        ],
+      },
+      P4: {
+        id: 'P4',
+        phase: 'presence',
+        zh: '也许问题正在回答你。',
+        en: 'Perhaps the questions answer you.',
+        options: [
+          { id: 'A', zh: '继续回答', en: 'Keep answering', nextId: 'P5' },
+          { id: 'B', zh: '停止回答', en: 'Stop answering', nextId: 'P5' },
+          { id: 'C', zh: '我已经不知道谁在回答', en: 'I no longer know who is answering', nextId: 'P5' },
+        ],
+      },
+      P5: {
+        id: 'P5',
+        phase: 'presence',
+        zh: '镜像字母会制造什么？',
+        en: 'What do mirror letters produce?',
+        options: [
+          { id: 'A', zh: '一个被反转的在场', en: 'A reversed presence', nextId: 'Q22' },
+          { id: 'B', zh: '一个没有来源的声音', en: 'A voice without origin', nextId: 'Q22' },
+          { id: 'C', zh: '一个正在阅读我的读者', en: 'A reader who is reading me', nextId: 'Q22' },
+        ],
+      },
+      Q22: {
+        id: 'Q22',
+        phase: 'final',
+        isFinal: true,
+        prefaceZh: [
+          '你刚刚用字母描述了镜像字母如何产生。',
+          '你用它穿过了它。',
+        ],
+        prefaceEn: [
+          'You have just used letters to describe how mirror letters are made.',
+          'You used them to pass through themselves.',
+        ],
+        zh: '你是否已经穿过了一面镜子？',
+        en: 'Have you already passed through a mirror?',
+        options: [
+          { id: 'YES', zh: 'YES', en: 'YES', action: 'go-noclipping' },
+          { id: 'NO', zh: 'NO', en: 'NO', action: 'welcome-back' },
+        ],
+      },
+    },
+  };
+  const QA_NODE_ORDER = Object.keys(alphabetQuestionTree.nodes);
+  const ALPHABET_QA_MAX_QUESTION_COUNT = 22;
+  let textCharTimes = Array.from(DEFAULT_TEXT, () => Date.now());
+  let textSize = 104;
+  const GLYPH = {
+    char: 'C',
+    x: STAGE.width / 2,
+    y: STAGE.height / 2 + 50,
+    size: 350,
+    rotation: 0,
+    mirrorX: 1,
+    mirrorY: 1,
+    changedAt: Date.now(),
+  };
+
+  const mirror = {
+    cx: STAGE.width / 2,
+    cy: STAGE.height / 2 - 88,
+    angle: 0.18,
+  };
+
+  const uploadedAsset = {
+    kind: null,
+    url: '',
+    dataUrl: '',
+    dataReady: Promise.resolve(),
+    fileName: '',
+    image: null,
+    x: STAGE.width / 2,
+    y: STAGE.height / 2,
+    width: 420,
+    height: 420,
+    scale: 1,
+    rotation: 0,
+  };
+
+  let dragMode = null;
+  let dragStart = null;
+  let assetDragStart = null;
+  let rotateStartAngle = 0;
+  let rotateStartPointerAngle = 0;
+  let cursorVisible = false;
+  let cursorPosition = { x: STAGE.width / 2, y: STAGE.height / 2 };
+  let externalRenderHook = null;
+  const currentFontFamily = RORRIM_FONT_FAMILY;
+  let fontTransitionTimer = null;
+  const spatial = {
+    mode: 'mirror',
+    time: 0,
+    frame: null,
+    foldBandWidth: 360,
+    foldDepth: 5,
+    frequency: 0.018,
+    amplitude: 58,
+    verticalWarp: 32,
+    drift: 22,
+  };
+
+  function glyphInnerMarkup() {
+    const glyphFontFamily = fontFamilyForAge(GLYPH.changedAt);
+    return `
+      <g class="glyph-layer" transform="translate(${GLYPH.x} ${GLYPH.y})">
+        <g transform="rotate(${GLYPH.rotation})">
+          <g transform="scale(${GLYPH.mirrorX} ${GLYPH.mirrorY})">
+            <text
+              x="0"
+              y="0"
+              text-anchor="middle"
+              dominant-baseline="central"
+              font-size="${GLYPH.size}"
+              font-family="'${escapeAttribute(glyphFontFamily)}', sans-serif"
+              font-weight="400"
+              fill="#111111"
+            >${GLYPH.char}</text>
+          </g>
+        </g>
+      </g>
+    `;
+  }
+
+  function escapeHtml(value) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function escapeAttribute(value) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function fontFamilyForAge(startedAt, now = Date.now()) {
+    return now - startedAt >= FONT_MATURATION_MS ? RORRIM_FONT_FAMILY : ANTIQUE_FONT_FAMILY;
+  }
+
+  function hasPendingFontTransitions(now = Date.now()) {
+    if (mode === 'single' && now - GLYPH.changedAt < FONT_MATURATION_MS) return true;
+    if (mode === 'text') {
+      return textCharTimes.some((startedAt) => now - startedAt < FONT_MATURATION_MS);
+    }
+    return false;
+  }
+
+  function scheduleFontTransitionRender() {
+    if (fontTransitionTimer || !hasPendingFontTransitions()) return;
+    fontTransitionTimer = window.setTimeout(() => {
+      fontTransitionTimer = null;
+      render();
+      scheduleFontTransitionRender();
+    }, 80);
+  }
+
+  function updateTextCharacterTimes(previous, next) {
+    const now = Date.now();
+    let prefix = 0;
+    while (
+      prefix < previous.length &&
+      prefix < next.length &&
+      previous[prefix] === next[prefix]
+    ) {
+      prefix += 1;
+    }
+
+    let suffix = 0;
+    while (
+      suffix < previous.length - prefix &&
+      suffix < next.length - prefix &&
+      previous[previous.length - 1 - suffix] === next[next.length - 1 - suffix]
+    ) {
+      suffix += 1;
+    }
+
+    const insertedLength = next.length - prefix - suffix;
+    textCharTimes = [
+      ...textCharTimes.slice(0, prefix),
+      ...Array(Math.max(0, insertedLength)).fill(now),
+      ...textCharTimes.slice(previous.length - suffix),
+    ];
+  }
+
+  function textMeasureContext() {
+    if (!textMeasureContext.canvas) {
+      textMeasureContext.canvas = document.createElement('canvas');
+      textMeasureContext.context = textMeasureContext.canvas.getContext('2d');
+    }
+    textMeasureContext.context.font = `400 ${textSize}px "${RORRIM_FONT_FAMILY}", sans-serif`;
+    return textMeasureContext.context;
+  }
+
+  function wrapTextLine(value, maxWidth, startIndex = 0) {
+    const context = textMeasureContext();
+    const units = Array.from(value);
+    const lines = [];
+    let line = [];
+    let lineText = '';
+    units.forEach((unit, index) => {
+      const candidate = lineText + unit;
+      if (line.length && context.measureText(candidate).width > maxWidth) {
+        lines.push(line);
+        line = [{ char: unit, index: startIndex + index }];
+        lineText = unit;
+      } else {
+        line.push({ char: unit, index: startIndex + index });
+        lineText = candidate;
+      }
+    });
+    lines.push(line);
+    return lines;
+  }
+
+  function svgTextLines() {
+    const maxWidth = STAGE.width + 20;
+    const paragraphs = textValue.split('\n');
+    const lines = [];
+    let offset = 0;
+    paragraphs.forEach((paragraph, index) => {
+      lines.push(...wrapTextLine(paragraph, maxWidth, offset));
+      offset += paragraph.length;
+      if (index < paragraphs.length - 1) {
+        lines.push([]);
+        offset += 1;
+      }
+    });
+    return lines;
+  }
+
+  function computeTextStartY(lines, lineHeight) {
+    const totalSpan = (lines.length - 1) * lineHeight;
+    const centeredY = STAGE.height / 2 - totalSpan / 2;
+    // When text overflows, anchor so the last line stays near the bottom
+    const bottomAnchorY = STAGE.height - lineHeight * 0.65 - totalSpan;
+    return Math.min(centeredY, bottomAnchorY);
+  }
+
+  function textMarkup() {
+    const lines = svgTextLines();
+    const now = Date.now();
+    const lineHeight = textSize * 1.02;
+    const startY = computeTextStartY(lines, lineHeight);
+    const textLines = lines.map((line, lineIndex) => {
+      const tspans = line.map(({ char, index }) => {
+        const fontFamily = fontFamilyForAge(textCharTimes[index] || now, now);
+        return `<tspan font-family="'${escapeAttribute(fontFamily)}', sans-serif">${escapeHtml(char)}</tspan>`;
+      }).join('');
+      return `
+        <text
+          class="svg-text-layer"
+          x="-10"
+          y="${startY + lineIndex * lineHeight}"
+          text-anchor="start"
+          dominant-baseline="central"
+          xml:space="preserve"
+          font-size="${textSize}"
+          font-weight="400"
+          fill="#111111"
+        >${tspans}</text>
+      `;
+    }).join('');
+
+    return `
+      <g class="svg-text-lines">
+        ${textLines}
+      </g>
+    `;
+  }
+
+  function updateAssetControls() {
+    assetXInput.value = Math.round(uploadedAsset.x);
+    assetYInput.value = Math.round(uploadedAsset.y);
+    assetScaleInput.value = Number(uploadedAsset.scale.toFixed(3));
+    assetRotationInput.value = Number(uploadedAsset.rotation.toFixed(2));
+  }
+
+  function revokeCurrentAssetUrl() {
+    if (uploadedAsset.url) URL.revokeObjectURL(uploadedAsset.url);
+    uploadedAsset.url = '';
+    uploadedAsset.dataUrl = '';
+    uploadedAsset.dataReady = Promise.resolve();
+    uploadedAsset.image = null;
+  }
+
+  function fitAssetToStage(width, height) {
+    const maxWidth = STAGE.width * 0.58;
+    const maxHeight = STAGE.height * 0.68;
+    const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+    uploadedAsset.width = width * ratio;
+    uploadedAsset.height = height * ratio;
+    uploadedAsset.x = STAGE.width / 2;
+    uploadedAsset.y = STAGE.height / 2;
+    uploadedAsset.scale = 1;
+    uploadedAsset.rotation = 0;
+  }
+
+  function assetTransform() {
+    return `translate(${uploadedAsset.x} ${uploadedAsset.y}) rotate(${uploadedAsset.rotation}) scale(${uploadedAsset.scale})`;
+  }
+
+  function assetMarkup(interactive = false) {
+    if (!uploadedAsset.kind || !uploadedAsset.url) return '';
+    const x = -uploadedAsset.width / 2;
+    const y = -uploadedAsset.height / 2;
+    const href = escapeAttribute(uploadedAsset.dataUrl || uploadedAsset.url);
+    const dragSurface = interactive
+      ? `<rect class="material-drag-surface" x="${x}" y="${y}" width="${uploadedAsset.width}" height="${uploadedAsset.height}"></rect>`
+      : '';
+
+    if (uploadedAsset.kind === 'pdf') {
+      return `
+        <g class="material-layer" transform="${assetTransform()}">
+          <rect x="${x}" y="${y}" width="${uploadedAsset.width}" height="${uploadedAsset.height}" fill="#ffffff" stroke="#111111" stroke-width="1"></rect>
+          <text
+            x="0"
+            y="0"
+            text-anchor="middle"
+            dominant-baseline="central"
+            font-family="'${escapeAttribute(currentFontFamily)}', sans-serif"
+            font-size="18"
+            fill="#111111"
+          >PDF asset preview is disabled for native SVG export</text>
+          ${dragSurface}
+        </g>
+      `;
+    }
+
+    return `
+      <g class="material-layer" transform="${assetTransform()}">
+        <image
+          class="material-node"
+          href="${href}"
+          x="${x}"
+          y="${y}"
+          width="${uploadedAsset.width}"
+          height="${uploadedAsset.height}"
+          preserveAspectRatio="none"
+        ></image>
+        ${dragSurface}
+      </g>
+    `;
+  }
+
+  function setUploadedAssetFromFile(file) {
+    if (!file) return;
+    const type = file.type || '';
+    const lowerName = file.name.toLowerCase();
+    const isImage = type.startsWith('image/') || /\.(png|jpe?g|webp)$/.test(lowerName);
+    const isPdf = type === 'application/pdf' || lowerName.endsWith('.pdf');
+    if (!isImage && !isPdf) {
+      setStatus('Please upload png, jpg, jpeg, webp, or pdf.');
+      return;
+    }
+
+    revokeCurrentAssetUrl();
+    uploadedAsset.url = URL.createObjectURL(file);
+    uploadedAsset.fileName = file.name;
+    uploadedAsset.dataReady = Promise.resolve();
+
+    if (isPdf) {
+      uploadedAsset.kind = 'pdf';
+      fitAssetToStage(612, 792);
+      updateAssetControls();
+      setStatus(`Loaded PDF placeholder: ${file.name}. Native SVG/PNG export requires converting this PDF page to an image first.`);
+      render();
+      return;
+    }
+
+    const probe = new Image();
+    probe.onload = () => {
+      uploadedAsset.kind = 'image';
+      uploadedAsset.image = probe;
+      fitAssetToStage(probe.naturalWidth || 420, probe.naturalHeight || 420);
+      updateAssetControls();
+      setStatus(`Loaded image: ${file.name}`);
+      render();
+    };
+    probe.onerror = () => {
+      revokeCurrentAssetUrl();
+      uploadedAsset.kind = null;
+      uploadedAsset.image = null;
+      setStatus(`Could not load image: ${file.name}`);
+      render();
+    };
+    probe.src = uploadedAsset.url;
+
+    const reader = new FileReader();
+    uploadedAsset.dataReady = new Promise((resolve, reject) => {
+      reader.onload = () => {
+        uploadedAsset.dataUrl = String(reader.result || '');
+        render();
+        resolve();
+      };
+      reader.onerror = () => reject(new Error(`Could not embed image data: ${file.name}`));
+    });
+    reader.readAsDataURL(file);
+  }
+
+  function clearUploadedAsset() {
+    revokeCurrentAssetUrl();
+    uploadedAsset.kind = null;
+    uploadedAsset.fileName = '';
+    uploadedAsset.image = null;
+    assetInput.value = '';
+    setStatus('Asset cleared.');
+    render();
+  }
+
+  function applyAssetControlValues() {
+    uploadedAsset.x = Number(assetXInput.value) || STAGE.width / 2;
+    uploadedAsset.y = Number(assetYInput.value) || STAGE.height / 2;
+    uploadedAsset.scale = Math.max(0.05, Number(assetScaleInput.value) || 1);
+    uploadedAsset.rotation = Number(assetRotationInput.value) || 0;
+    render();
+  }
+
+  function applyModeFocus() {
+    if (mode === 'text') {
+      if (qaEnabled && !qaMachineTyping && !alphabetInputLocked) {
+        textInput.value = inputValue;
+      } else {
+        textInput.value = textValue;
+        textValue = textInput.value;
+      }
+      textInput.focus();
+      textInput.setSelectionRange(textInput.value.length, textInput.value.length);
+    } else {
+      stage.focus();
+    }
+  }
+
+  function toggleMode() {
+    stopAutoText();
+    if (mode === 'single') {
+      mode = 'text';
+    } else if (mode === 'text') {
+      mode = 'empty';
+    } else {
+      mode = 'single';
+    }
+    render();
+    applyModeFocus();
+    setStatus(`Mode: ${mode}`);
+  }
+
+  function toggleSpatialMode() {
+    spatial.mode = spatial.mode === 'mirror' ? 'slice' : 'mirror';
+    if (spatial.mode === 'slice') {
+      startSpatialAnimation();
+    } else {
+      stopSpatialAnimation();
+    }
+    setStatus(spatial.mode === 'slice' ? 'Dynamic seam mode' : 'Mirror mode');
+    render();
+  }
+
+  function startSpatialAnimation() {
+    if (spatial.frame) return;
+    const tick = (time) => {
+      spatial.time = time * 0.001;
+      render();
+      spatial.frame = requestAnimationFrame(tick);
+    };
+    spatial.frame = requestAnimationFrame(tick);
+  }
+
+  function stopSpatialAnimation() {
+    if (!spatial.frame) return;
+    cancelAnimationFrame(spatial.frame);
+    spatial.frame = null;
+  }
+
+  function pointerAngleAroundMirror(point) {
+    return Math.atan2(point.y - mirror.cy, point.x - mirror.cx);
+  }
+
+  function svgPointFromClient(clientX, clientY) {
+    const point = stage.createSVGPoint();
+    point.x = clientX;
+    point.y = clientY;
+    return point.matrixTransform(stage.getScreenCTM().inverse());
+  }
+
+  function lineEndpoints(cx = mirror.cx, cy = mirror.cy, angle = mirror.angle) {
+    const ux = Math.cos(angle);
+    const uy = Math.sin(angle);
+    return {
+      ax: cx - ux * EXTENT,
+      ay: cy - uy * EXTENT,
+      bx: cx + ux * EXTENT,
+      by: cy + uy * EXTENT,
+      ux,
+      uy,
+      nx: -uy,
+      ny: ux,
+    };
+  }
+
+  function matrixForReflection() {
+    const cos2 = Math.cos(2 * mirror.angle);
+    const sin2 = Math.sin(2 * mirror.angle);
+    const a = cos2;
+    const b = sin2;
+    const c = sin2;
+    const d = -cos2;
+    const e = mirror.cx - a * mirror.cx - c * mirror.cy;
+    const f = mirror.cy - b * mirror.cx - d * mirror.cy;
+    return { a, b, c, d, e, f };
+  }
+
+  function multiplyMatrix(left, right) {
+    return {
+      a: left.a * right.a + left.c * right.b,
+      b: left.b * right.a + left.d * right.b,
+      c: left.a * right.c + left.c * right.d,
+      d: left.b * right.c + left.d * right.d,
+      e: left.a * right.e + left.c * right.f + left.e,
+      f: left.b * right.e + left.d * right.f + left.f,
+    };
+  }
+
+  function translationMatrix(x, y) {
+    return { a: 1, b: 0, c: 0, d: 1, e: x, f: y };
+  }
+
+  function rotationMatrixAround(cx, cy, angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+      a: cos,
+      b: sin,
+      c: -sin,
+      d: cos,
+      e: cx - cos * cx + sin * cy,
+      f: cy - sin * cx - cos * cy,
+    };
+  }
+
+  function scaleMatrixAround(cx, cy, scale) {
+    return {
+      a: scale,
+      b: 0,
+      c: 0,
+      d: scale,
+      e: cx - scale * cx,
+      f: cy - scale * cy,
+    };
+  }
+
+  function matrixToString(matrix) {
+    return `matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`;
+  }
+
+  function pointByMatrix(matrix, x, y) {
+    return {
+      x: matrix.a * x + matrix.c * y + matrix.e,
+      y: matrix.b * x + matrix.d * y + matrix.f,
+    };
+  }
+
+  function seamDriftVector() {
+    const { ux, uy, nx, ny } = lineEndpoints();
+    return {
+      x: ux * spatial.driftTangent + nx * spatial.driftNormal,
+      y: uy * spatial.driftTangent + ny * spatial.driftNormal,
+    };
+  }
+
+  function recursivePortalStepMatrix() {
+    const drift = seamDriftVector();
+    const reindexed = matrixForReflection();
+    const scaled = scaleMatrixAround(mirror.cx, mirror.cy, spatial.scale);
+    const rotated = rotationMatrixAround(mirror.cx, mirror.cy, spatial.foldAngle);
+    const shifted = translationMatrix(drift.x, drift.y);
+    return multiplyMatrix(shifted, multiplyMatrix(rotated, multiplyMatrix(scaled, reindexed)));
+  }
+
+  function seamCoordinates(x, y) {
+    const { ux, uy, nx, ny } = lineEndpoints();
+    const dx = x - mirror.cx;
+    const dy = y - mirror.cy;
+    return {
+      tangent: dx * ux + dy * uy,
+      distance: dx * nx + dy * ny,
+      ux,
+      uy,
+      nx,
+      ny,
+    };
+  }
+
+  function pointFromSeam(tangent, distance, basis) {
+    return {
+      x: mirror.cx + basis.ux * tangent + basis.nx * distance,
+      y: mirror.cy + basis.uy * tangent + basis.ny * distance,
+    };
+  }
+
+  function wrap(value, min, max) {
+    const range = max - min;
+    return ((((value - min) % range) + range) % range) + min;
+  }
+
+  function baseTokenText() {
+    const value = mode === 'single' ? GLYPH.char : textValue;
+    const words = value.trim().split(/\s+/).filter(Boolean);
+    if (words.length > 1) return words;
+    return Array.from(value);
+  }
+
+  function tokenSeed(index) {
+    const s = Math.sin(index * 12.9898) * 43758.5453;
+    return s - Math.floor(s);
+  }
+
+  function warpedToken(index, label) {
+    const t = spatial.time;
+    const row = Math.floor(index / 9);
+    const col = index % 9;
+    const seed = tokenSeed(index);
+    const tangent = wrap(
+      -720 + col * 180 + row * 42 + t * (18 + seed * 16),
+      -860,
+      860
+    );
+    const sourceDistance = -38 - (row % 5) * 54 - seed * 34;
+    const seam = lineEndpoints();
+    const band = Math.max(0, 1 - Math.abs(sourceDistance) / spatial.foldBandWidth);
+    const pass = 1 + ((row + col + Math.floor(t * 0.85 + seed * 3)) % spatial.foldDepth);
+    const mappedDistance = Math.abs(sourceDistance) * Math.pow(0.76, pass) + 18 * pass;
+    const z = Math.sin(sourceDistance * spatial.frequency + t * 1.55 + seed * 6) * spatial.amplitude * band;
+    const tangentWarp = Math.sin(t * 0.9 + tangent * 0.012 + seed * 9) * spatial.drift * band;
+    const normalWarp = Math.cos(t * 1.2 + tangent * spatial.frequency + seed * 5) * spatial.verticalWarp * band;
+    const point = pointFromSeam(
+      tangent + tangentWarp + pass * (10 + seed * 9),
+      mappedDistance + normalWarp,
+      seam
+    );
+    const rotation = (mirror.angle * 180 / Math.PI)
+      + Math.sin(t * 0.9 + index * 0.41) * 16 * band
+      + pass * 5.5;
+    const scale = Math.max(0.38, 1 + z / 380 - pass * 0.08);
+    const size = Math.max(22, Math.min(190, textSize * 0.72 * scale));
+    return {
+      label,
+      x: point.x,
+      y: point.y,
+      rotation,
+      size,
+      pass,
+    };
+  }
+
+  function dynamicSliceMarkup() {
+    const tokens = baseTokenText();
+    const mappedClipPoints = pointsAttribute(
+      polygonPointsForHalfPlane(1, mirror.cx, mirror.cy, mirror.angle, BOUNDARY_CLEARANCE)
+    );
+    let markup = `
+      <defs>
+        <clipPath id="sliceMappedClip" clipPathUnits="userSpaceOnUse">
+          <polygon points="${mappedClipPoints}"></polygon>
+        </clipPath>
+      </defs>
+      <g clip-path="url(#sliceMappedClip)">
+    `;
+    for (let index = 0; index < 126; index += 1) {
+      const token = warpedToken(index, tokens[index % tokens.length]);
+      markup += `
+        <text
+          x="${token.x.toFixed(2)}"
+          y="${token.y.toFixed(2)}"
+          transform="rotate(${token.rotation.toFixed(2)} ${token.x.toFixed(2)} ${token.y.toFixed(2)})"
+          text-anchor="middle"
+          dominant-baseline="central"
+          font-family="'${escapeAttribute(currentFontFamily)}', sans-serif"
+          font-size="${token.size.toFixed(2)}"
+          font-weight="400"
+          fill="#111111"
+        >${escapeHtml(token.label)}</text>
+      `;
+    }
+    return `${markup}</g>`;
+  }
+
+  function currentContentMarkup() {
+    if (mode === 'single') return glyphInnerMarkup();
+    if (mode === 'empty') return '';
+    return textMarkup();
+  }
+
+  function boundaryFromMatrix(matrix) {
+    const { ux, uy } = lineEndpoints();
+    const center = pointByMatrix(matrix, mirror.cx, mirror.cy);
+    const directionPoint = pointByMatrix(matrix, mirror.cx + ux, mirror.cy + uy);
+    const dx = directionPoint.x - center.x;
+    const dy = directionPoint.y - center.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const tx = dx / length;
+    const ty = dy / length;
+    return {
+      cx: center.x,
+      cy: center.y,
+      ux: tx,
+      uy: ty,
+      nx: -ty,
+      ny: tx,
+    };
+  }
+
+  function boundaryLineMarkup(boundary, opacity = 1, className = 'mirror-axis') {
+    const startX = boundary.cx - boundary.ux * RECURSIVE_EXTENT;
+    const startY = boundary.cy - boundary.uy * RECURSIVE_EXTENT;
+    const endX = boundary.cx + boundary.ux * RECURSIVE_EXTENT;
+    const endY = boundary.cy + boundary.uy * RECURSIVE_EXTENT;
+    return `<path class="${className}" stroke="${MIRROR_RED}" stroke-width="8" stroke-linecap="butt" fill="none" style="stroke:${MIRROR_RED};stroke-width:8;opacity:${opacity.toFixed(3)}" d="M ${startX} ${startY} L ${endX} ${endY}"></path>`;
+  }
+
+  function polygonForBoundaryHalfPlane(boundary, sign, clearance = 0) {
+    const cx = boundary.cx + boundary.nx * clearance * sign;
+    const cy = boundary.cy + boundary.ny * clearance * sign;
+    const p1x = cx - boundary.ux * EXTENT;
+    const p1y = cy - boundary.uy * EXTENT;
+    const p2x = cx + boundary.ux * EXTENT;
+    const p2y = cy + boundary.uy * EXTENT;
+    const offx = boundary.nx * EXTENT * sign;
+    const offy = boundary.ny * EXTENT * sign;
+    return [
+      [p1x, p1y],
+      [p2x, p2y],
+      [p2x + offx, p2y + offy],
+      [p1x + offx, p1y + offy],
+    ];
+  }
+
+  function pointsAttribute(points) {
+    return points.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+  }
+
+  function recursiveSliceMarkup() {
+    const content = currentContentMarkup();
+    let matrix = recursivePortalStepMatrix();
+    let clips = `<defs><clipPath id="recursiveMainSeamClip" clipPathUnits="userSpaceOnUse"><polygon points="${pointsAttribute(polygonPointsForHalfPlane(1, mirror.cx, mirror.cy, mirror.angle, BOUNDARY_CLEARANCE))}"></polygon></clipPath>`;
+    let bodies = '<g clip-path="url(#recursiveMainSeamClip)">';
+    let boundaries = '';
+
+    for (let index = 0; index < spatial.depth; index += 1) {
+      const boundary = boundaryFromMatrix(matrix);
+      const clipId = `recursiveSliceClip${index}`;
+      const opacity = Math.max(0.22, 0.82 - index * 0.045);
+      const lineOpacity = Math.max(0.18, 0.62 - index * 0.035);
+      clips += `<clipPath id="${clipId}" clipPathUnits="userSpaceOnUse"><polygon points="${pointsAttribute(polygonForBoundaryHalfPlane(boundary, 1, BOUNDARY_CLEARANCE))}"></polygon></clipPath>`;
+      bodies += `
+        <g clip-path="url(#${clipId})" style="opacity:${opacity.toFixed(3)}">
+          <g transform="${matrixToString(matrix)}">${content}</g>
+        </g>
+      `;
+      boundaries += boundaryLineMarkup(boundary, lineOpacity);
+      matrix = multiplyMatrix(recursivePortalStepMatrix(), matrix);
+    }
+
+    bodies += '</g>';
+    return `${clips}</defs>${bodies}${boundaries}`;
+  }
+
+  function polygonPointsForHalfPlane(sign, cx = mirror.cx, cy = mirror.cy, angle = mirror.angle, clearance = 0) {
+    const { ux, uy, nx, ny } = lineEndpoints(cx, cy, angle);
+    const shiftedCx = cx + nx * clearance * sign;
+    const shiftedCy = cy + ny * clearance * sign;
+    const p1x = shiftedCx - ux * EXTENT;
+    const p1y = shiftedCy - uy * EXTENT;
+    const p2x = shiftedCx + ux * EXTENT;
+    const p2y = shiftedCy + uy * EXTENT;
+    const offx = nx * EXTENT * sign;
+    const offy = ny * EXTENT * sign;
+    return [
+      [p1x, p1y],
+      [p2x, p2y],
+      [p2x + offx, p2y + offy],
+      [p1x + offx, p1y + offy],
+    ];
+  }
+
+  function setPolygon(el, points) {
+    el.setAttribute(
+      'points',
+      pointsAttribute(points)
+    );
+  }
+
+  function updateCursor() {
+    cursorArrow.style.display = cursorVisible ? 'block' : 'none';
+    if (!cursorVisible) return;
+    const degrees = mirror.angle * 180 / Math.PI;
+    cursorArrow.setAttribute(
+      'transform',
+      `translate(${cursorPosition.x} ${cursorPosition.y}) rotate(${degrees})`
+    );
+  }
+
+  function render() {
+    const { ax, ay, bx, by } = lineEndpoints();
+    const showSingle = mode === 'single';
+    const showText = mode === 'text';
+    const showSlice = spatial.mode === 'slice';
+    originalMaterial.innerHTML = assetMarkup(true);
+    reflectionMaterial.innerHTML = !showSlice ? assetMarkup(false) : '';
+    originalGlyph.innerHTML = showSingle ? glyphInnerMarkup() : '';
+    reflectionGlyph.innerHTML = showSingle && !showSlice ? glyphInnerMarkup() : '';
+    originalText.innerHTML = showText ? textMarkup() : '';
+    reflectionText.innerHTML = showText && !showSlice ? textMarkup() : '';
+    analysisLayer.innerHTML = showSlice ? dynamicSliceMarkup() : '';
+
+    axisLine.setAttribute('d', `M ${ax} ${ay} L ${bx} ${by}`);
+    axisLine.setAttribute('stroke', MIRROR_RED);
+    axisLine.setAttribute('stroke-width', '8');
+    axisLine.setAttribute('stroke-linecap', 'butt');
+    axisLine.setAttribute('fill', 'none');
+    axisLine.style.stroke = MIRROR_RED;
+    axisLine.style.strokeWidth = '8';
+    axisLine.style.strokeLinecap = 'butt';
+
+    axisHit.setAttribute('x1', ax);
+    axisHit.setAttribute('y1', ay);
+    axisHit.setAttribute('x2', bx);
+    axisHit.setAttribute('y2', by);
+
+    const matrix = matrixForReflection();
+    reflectionGlyph.setAttribute(
+      'transform',
+      `matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`
+    );
+    reflectionText.setAttribute(
+      'transform',
+      `matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`
+    );
+    reflectionMaterial.setAttribute(
+      'transform',
+      `matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`
+    );
+
+    setPolygon(originalClipPolygon, polygonPointsForHalfPlane(-1, mirror.cx, mirror.cy, mirror.angle, showSlice ? BOUNDARY_CLEARANCE : 0));
+    setPolygon(reflectionClipPolygon, polygonPointsForHalfPlane(1, mirror.cx, mirror.cy, mirror.angle, showSlice ? BOUNDARY_CLEARANCE : 0));
+    updateCursor();
+    scheduleFontTransitionRender();
+    if (typeof externalRenderHook === 'function') externalRenderHook();
+  }
+
+  function startDrag(mode, event) {
+    cancelMirrorJoy();
+    dragMode = mode;
+    dragStart = svgPointFromClient(event.clientX, event.clientY);
+    if (mode === 'rotate') {
+      rotateStartAngle = mirror.angle;
+      rotateStartPointerAngle = pointerAngleAroundMirror(dragStart);
+    }
+    event.target.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function startMaterialDrag(event) {
+    dragMode = event.shiftKey ? 'material-rotate' : (event.altKey ? 'material-scale' : 'material-move');
+    dragStart = svgPointFromClient(event.clientX, event.clientY);
+    assetDragStart = {
+      x: uploadedAsset.x,
+      y: uploadedAsset.y,
+      scale: uploadedAsset.scale,
+      rotation: uploadedAsset.rotation,
+      pointerAngle: Math.atan2(dragStart.y - uploadedAsset.y, dragStart.x - uploadedAsset.x),
+      pointerDistance: Math.hypot(dragStart.x - uploadedAsset.x, dragStart.y - uploadedAsset.y) || 1,
+    };
+    event.target.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  axisHit.addEventListener('pointerdown', (event) => {
+    startDrag(event.shiftKey ? 'rotate' : 'move', event);
+  });
+  stage.addEventListener('pointerdown', (event) => {
+    if (uploadedAsset.kind && event.target.closest && event.target.closest('.material-drag-surface')) {
+      startMaterialDrag(event);
+      return;
+    }
+    if (event.target === axisHit || event.target === axisLine) {
+      startDrag(event.shiftKey ? 'rotate' : 'move', event);
+      return;
+    }
+    startDrag(event.shiftKey ? 'rotate' : 'move', event);
+  });
+
+  stage.addEventListener('pointermove', (event) => {
+    cursorPosition = svgPointFromClient(event.clientX, event.clientY);
+    if (!dragMode) {
+      updateCursor();
+      return;
+    }
+    const point = cursorPosition;
+
+    if (dragMode === 'move') {
+      const dx = point.x - dragStart.x;
+      const dy = point.y - dragStart.y;
+      mirror.cx += dx;
+      mirror.cy += dy;
+      dragStart = point;
+      if (tutorialActive && tutorialStep === 'move' && Math.hypot(dx, dy) > 0.8) {
+        setTutorialStep('move-good');
+      }
+    } else if (dragMode === 'rotate') {
+      mirror.angle = rotateStartAngle + (pointerAngleAroundMirror(point) - rotateStartPointerAngle);
+      if (tutorialActive && tutorialStep === 'rotate' && Math.abs(mirror.angle - rotateStartAngle) > 0.04) {
+        setTutorialStep('good');
+      }
+    } else if (dragMode === 'material-move') {
+      uploadedAsset.x = assetDragStart.x + point.x - dragStart.x;
+      uploadedAsset.y = assetDragStart.y + point.y - dragStart.y;
+      updateAssetControls();
+    } else if (dragMode === 'material-rotate') {
+      const angle = Math.atan2(point.y - uploadedAsset.y, point.x - uploadedAsset.x);
+      uploadedAsset.rotation = assetDragStart.rotation + (angle - assetDragStart.pointerAngle) * 180 / Math.PI;
+      updateAssetControls();
+    } else if (dragMode === 'material-scale') {
+      const distance = Math.hypot(point.x - uploadedAsset.x, point.y - uploadedAsset.y) || 1;
+      uploadedAsset.scale = Math.max(0.05, assetDragStart.scale * distance / assetDragStart.pointerDistance);
+      updateAssetControls();
+    }
+
+    render();
+    event.preventDefault();
+  });
+
+  stage.addEventListener('pointerenter', (event) => {
+    cursorVisible = true;
+    cursorPosition = svgPointFromClient(event.clientX, event.clientY);
+    updateCursor();
+  });
+
+  stage.addEventListener('pointerleave', () => {
+    cursorVisible = false;
+    stopDrag();
+    updateCursor();
+  });
+
+  function stopDrag() {
+    dragMode = null;
+    assetDragStart = null;
+  }
+
+  stage.addEventListener('pointerup', stopDrag);
+  stage.addEventListener('pointercancel', stopDrag);
+  stage.addEventListener('mousedown', (event) => event.preventDefault());
+  stage.addEventListener('dragstart', (event) => event.preventDefault());
+
+  document.addEventListener('keydown', (event) => {
+    if (!openingActive) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
+
+  stage.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      window.parent.postMessage('closeAlphabetOverlay', '*');
+      return;
+    }
+    if (qaEnabled) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      toggleMode();
+      return;
+    }
+    if (mode !== 'single') return;
+    if (event.key === 'ArrowLeft') {
+      GLYPH.rotation -= 5;
+      render();
+    } else if (event.key === 'ArrowRight') {
+      GLYPH.rotation += 5;
+      render();
+    } else if (event.key === 'ArrowUp') {
+      GLYPH.mirrorX *= -1;
+      render();
+    } else if (event.key === 'ArrowDown') {
+      GLYPH.mirrorY *= -1;
+      render();
+    } else if (event.key.length === 1) {
+      GLYPH.char = event.key;
+      GLYPH.changedAt = Date.now();
+      render();
+    } else {
+      return;
+    }
+    event.preventDefault();
+  });
+
+  textInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      window.parent.postMessage('closeAlphabetOverlay', '*');
+      return;
+    }
+    if (tutorialActive) {
+      if (event.key === 'Enter' && tutorialReadyForQuestions) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        beginQuestionSequence();
+      } else if (tutorialStep !== 'type') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+      return;
+    }
+    if (qaEnabled) {
+      if (alphabetInputLocked) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      if (event.key === 'Enter' && !event.shiftKey && !alphabetInputComposing && !event.isComposing) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        submitAlphabetInput();
+        return;
+      }
+      event.stopImmediatePropagation();
+    }
+  });
+
+  textInput.addEventListener('beforeinput', (event) => {
+    if (tutorialActive && tutorialStep !== 'type') {
+      event.preventDefault();
+      return;
+    }
+    if (!qaEnabled) return;
+    if (alphabetInputLocked) event.preventDefault();
+  });
+
+  textInput.addEventListener('paste', (event) => {
+    if (!qaEnabled) return;
+    if (alphabetInputLocked) event.preventDefault();
+  });
+
+  textInput.addEventListener('compositionstart', () => {
+    alphabetInputComposing = true;
+  });
+
+  textInput.addEventListener('compositionend', () => {
+    alphabetInputComposing = false;
+    if (qaEnabled && !qaMachineTyping && !alphabetInputLocked) {
+      const prevValue = textValue;
+      textInput.value = normalizeAlphabetInput(textInput.value);
+      inputValue = textInput.value;
+      renderAlphabetInputText(inputValue);
+      triggerJoyForNewAbc(prevValue, textValue);
+    }
+  });
+
+  // Mirror joy animation — triggers when A, B, or C (uppercase) is typed in text mode
+  let mirrorJoyAnim = null;
+
+  function cancelMirrorJoy() {
+    if (mirrorJoyAnim !== null) {
+      cancelAnimationFrame(mirrorJoyAnim);
+      mirrorJoyAnim = null;
+    }
+  }
+
+  function detectNewJoyChar(prev, next) {
+    if (next.length !== prev.length + 1) return null;
+    for (let i = 0; i <= prev.length; i++) {
+      if (i === prev.length || next[i] !== prev[i]) {
+        const c = next[i];
+        return (c === 'A' || c === 'B' || c === 'C') ? { char: c, index: i } : null;
+      }
+    }
+    return null;
+  }
+
+  function detectNewJoyCharInText(prev, next) {
+    const direct = detectNewJoyChar(prev, next);
+    if (direct) return direct;
+    const maxLength = Math.max(prev.length, next.length);
+    for (let i = 0; i < maxLength; i++) {
+      if (prev[i] !== next[i]) {
+        for (let j = i; j < next.length; j++) {
+          const char = next[j];
+          if (char === 'A' || char === 'B' || char === 'C') {
+            return { char, index: j };
+          }
+        }
+        return null;
+      }
+    }
+    return null;
+  }
+
+  function findJoyCharPos(charIndex) {
+    const lines = svgTextLines();
+    const lineHeight = textSize * 1.02;
+    const startY = computeTextStartY(lines, lineHeight);
+    for (let li = 0; li < lines.length; li++) {
+      for (let ci = 0; ci < lines[li].length; ci++) {
+        if (lines[li][ci].index === charIndex) {
+          const textEls = originalText.querySelectorAll('text');
+          if (textEls[li]) {
+            const tspans = textEls[li].querySelectorAll('tspan');
+            if (tspans[ci]) {
+              try {
+                const bbox = tspans[ci].getBBox();
+                return { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 };
+              } catch (_) {}
+            }
+          }
+          return { x: STAGE.width / 2, y: startY + li * lineHeight };
+        }
+      }
+    }
+    return null;
+  }
+
+  function triggerMirrorJoy(targetX, targetY) {
+    cancelMirrorJoy();
+    const startCx = mirror.cx, startCy = mirror.cy, startAngle = mirror.angle;
+    const DURATION = 3000;
+    const totalRot = (1 + Math.random()) * 2 * Math.PI;
+    const rotPow = 2 + Math.random() * 2;
+
+    // Build waypoints: start → 2–4 random points → target
+    const numMid = 2 + Math.floor(Math.random() * 3);
+    const pts = [[startCx, startCy]];
+    for (let i = 0; i < numMid; i++) {
+      pts.push([
+        STAGE.width * 0.1 + Math.random() * STAGE.width * 0.8,
+        STAGE.height * 0.1 + Math.random() * STAGE.height * 0.8,
+      ]);
+    }
+    pts.push([targetX, targetY]);
+
+    // Per-segment easing: first/last ease-out (< 1), middle random
+    const n = pts.length - 1;
+    const segPow = pts.map((_, i) =>
+      (i === 0 || i === n - 1) ? 0.3 + Math.random() * 0.4 : 0.5 + Math.random() * 3.5
+    );
+
+    function catmullRom(p0, p1, p2, p3, t) {
+      return 0.5 * (2*p1 + (-p0+p2)*t + (2*p0-5*p1+4*p2-p3)*t*t + (-p0+3*p1-3*p2+p3)*t*t*t);
+    }
+
+    function posAtRaw(rawT) {
+      const seg = Math.min(Math.floor(rawT * n), n - 1);
+      const st = Math.pow(rawT * n - seg, segPow[seg]);
+      const p0 = pts[Math.max(seg-1, 0)], p1 = pts[seg];
+      const p2 = pts[Math.min(seg+1, n)],  p3 = pts[Math.min(seg+2, n)];
+      return [
+        catmullRom(p0[0], p1[0], p2[0], p3[0], st),
+        catmullRom(p0[1], p1[1], p2[1], p3[1], st),
+      ];
+    }
+
+    const t0 = performance.now();
+
+    function tick(now) {
+      const raw = Math.min((now - t0) / DURATION, 1);
+      const [cx, cy] = posAtRaw(raw);
+      mirror.cx = cx;
+      mirror.cy = cy;
+      // Rotation: ease-out — spins fast then settles as it arrives
+      mirror.angle = startAngle + totalRot * (1 - Math.pow(1 - raw, rotPow));
+      render();
+      if (raw < 1) {
+        mirrorJoyAnim = requestAnimationFrame(tick);
+      } else {
+        mirror.cx = targetX;
+        mirror.cy = targetY;
+        mirrorJoyAnim = null;
+        render();
+      }
+    }
+
+    mirrorJoyAnim = requestAnimationFrame(tick);
+  }
+
+  function triggerJoyForNewAbc(prevValue, nextValue) {
+    const joy = detectNewJoyCharInText(prevValue, nextValue);
+    if (!joy) return;
+    const pos = findJoyCharPos(joy.index);
+    if (pos) triggerMirrorJoy(pos.x, pos.y);
+  }
+
+  textInput.addEventListener('input', () => {
+    if (qaEnabled && !qaMachineTyping) {
+      const prevValue = textValue;
+      const normalized = alphabetInputComposing ? textInput.value : normalizeAlphabetInput(textInput.value);
+      if (textInput.value !== normalized) {
+        const selectionStart = textInput.selectionStart;
+        const selectionEnd = textInput.selectionEnd;
+        textInput.value = normalized;
+        textInput.setSelectionRange(selectionStart, selectionEnd);
+      }
+      inputValue = normalized;
+      renderAlphabetInputText(inputValue);
+      if (!alphabetInputComposing) {
+        triggerJoyForNewAbc(prevValue, textValue);
+      }
+      return;
+    }
+    const prevValue = textValue;
+    const nextValue = textInput.value;
+    updateTextCharacterTimes(textValue, nextValue);
+    textValue = nextValue;
+    if (mode === 'text') {
+      render();
+      const joy = qaMachineTyping || !qaEnabled ? detectNewJoyChar(prevValue, nextValue) : null;
+      if (joy) {
+        const pos = findJoyCharPos(joy.index);
+        if (pos) triggerMirrorJoy(pos.x, pos.y);
+      }
+    }
+  });
+
+  // ── Q&A: click anywhere refocuses text input ─────────────────────
+  document.addEventListener('click', () => {
+    if (finalPendingMessage) {
+      window.parent.postMessage(finalPendingMessage, '*');
+      finalPendingMessage = null;
+      return;
+    }
+    if (openingActive) return;
+    if (mode === 'text') {
+      textInput.focus();
+      textInput.setSelectionRange(textInput.value.length, textInput.value.length);
+    }
+  });
+
+  // ── Q&A functions ────────────────────────────────────────────────
+  function clearQaAutoTypingTimer() {
+    if (qaAutoTypingTimer !== null) {
+      clearTimeout(qaAutoTypingTimer);
+      qaAutoTypingTimer = null;
+    }
+    qaMachineTyping = false;
+  }
+
+  function qaTypingDelay(char, previousChar = '') {
+    let delay = 55 + Math.random() * 95;
+    if (char === ' ') delay += 30 + Math.random() * 45;
+    if ('.,;:!?'.includes(char)) delay += 95 + Math.random() * 150;
+    if (char === '—' || char === '-') delay += 45 + Math.random() * 90;
+    if ('.:!?'.includes(previousChar)) delay += 150 + Math.random() * 220;
+    if (Math.random() < 0.1) delay *= 0.45;
+    return delay;
+  }
+
+  function typeTextByMachine(value) {
+    clearQaAutoTypingTimer();
+    return new Promise((resolve) => {
+      const chars = Array.from(value);
+      let index = 0;
+      qaMachineTyping = true;
+      function typeNext() {
+        if (index >= chars.length) {
+          qaAutoTypingTimer = null;
+          qaMachineTyping = false;
+          resolve();
+          return;
+        }
+        const char = chars[index];
+        const previousChar = index > 0 ? chars[index - 1] : '';
+        textInput.value += char;
+        textInput.dispatchEvent(new Event('input', { bubbles: true }));
+        index += 1;
+        qaAutoTypingTimer = setTimeout(typeNext, qaTypingDelay(char, previousChar));
+      }
+      typeNext();
+    });
+  }
+
+  function setQaChoicesEnabled(enabled) {
+    qaChoicesEl.querySelectorAll('.qa-choice').forEach((choice) => {
+      choice.classList.toggle('is-disabled', !enabled);
+      choice.setAttribute('aria-disabled', String(!enabled));
+    });
+  }
+
+  function dismissChoices() {
+    const choices = Array.from(qaChoicesEl.querySelectorAll('.qa-choice'));
+    choices.forEach((choice, index) => {
+      window.setTimeout(() => {
+        choice.classList.add('is-exiting');
+      }, index * 120);
+    });
+    return wait(choices.length * 120 + 420);
+  }
+
+  function stopMadness() {
+    if (madnessFrame !== null) {
+      cancelAnimationFrame(madnessFrame);
+      madnessFrame = null;
+    }
+    if (madnessStopTimer !== null) {
+      clearTimeout(madnessStopTimer);
+      madnessStopTimer = null;
+    }
+    if (madnessAnchorTimer !== null) {
+      clearTimeout(madnessAnchorTimer);
+      madnessAnchorTimer = null;
+    }
+    madnessLevel = 0;
+  }
+
+  function joyAnchorIndices() {
+    const anchors = [];
+    Array.from(textValue).forEach((char, index) => {
+      if (char === 'A' || char === 'B' || char === 'C') anchors.push(index);
+    });
+    return anchors;
+  }
+
+  function triggerRandomJoyAnchor() {
+    const anchors = joyAnchorIndices();
+    if (!anchors.length) return false;
+    const visibleAnchors = anchors
+      .map((index) => ({ index, pos: findJoyCharPos(index) }))
+      .filter(({ pos }) => (
+        pos &&
+        pos.x >= 20 &&
+        pos.x <= STAGE.width - 20 &&
+        pos.y >= 20 &&
+        pos.y <= STAGE.height - 20
+      ));
+    if (!visibleAnchors.length) return false;
+    const { pos } = visibleAnchors[Math.floor(Math.random() * visibleAnchors.length)];
+    triggerMirrorJoy(pos.x, pos.y);
+    return true;
+  }
+
+  function triggerRedLineMadness(level, persistent = false) {
+    stopMadness();
+    madnessLevel = level;
+    const cycles = persistent ? Infinity : level === 1 ? 1 : level === 2 ? 2 : 3;
+    let completed = 0;
+
+    function pulse() {
+      triggerRandomJoyAnchor();
+      completed += 1;
+      if (completed < cycles || persistent) {
+        madnessAnchorTimer = setTimeout(pulse, 3300);
+      } else {
+        madnessAnchorTimer = null;
+      }
+    }
+
+    pulse();
+  }
+
+  async function handleMadnessMilestone() {
+    if (answeredCount >= 7 && !triggeredMadnessScores.has(7)) {
+      triggeredMadnessScores.add(7);
+      triggerRedLineMadness(1);
+      await wait(2100);
+    }
+    if (answeredCount >= 14 && !triggeredMadnessScores.has(14)) {
+      triggeredMadnessScores.add(14);
+      triggerRedLineMadness(2);
+      await typeTextByMachine(` ${AUTO_RULE_TEXT}`);
+      await wait(1800);
+    }
+    if (answeredCount >= 21 && !triggeredMadnessScores.has(21)) {
+      triggeredMadnessScores.add(21);
+      triggerRedLineMadness(3);
+      await wait(700);
+    }
+  }
+
+  function formatQaEnglish(text = '') {
+    return String(text).replace(/[abc]/g, (letter) => letter.toUpperCase());
+  }
+
+  function normalizeAlphabetInput(raw = '') {
+    return String(raw).replace(/[abc]/gi, (letter) => letter.toUpperCase());
+  }
+
+  function getCurrentAlphabetInputPrompt() {
+    return ALPHABET_INPUT_PROMPTS[currentPromptIndex] || ALPHABET_INPUT_PROMPTS[0];
+  }
+
+  function renderAlphabetInputPrompt() {
+    const prompt = getCurrentAlphabetInputPrompt();
+    const overlay = document.getElementById('qaOverlay');
+    document.getElementById('qaQuestionZh').textContent = prompt.zh;
+    document.getElementById('qaQuestionEn').textContent = prompt.en;
+    overlay.classList.remove('qa-disabled');
+    overlay.style.opacity = '1';
+    qaChoicesEl.replaceChildren();
+    qaChoicesEl.classList.add('qa-disabled');
+  }
+
+  function renderAlphabetInputText(currentText = inputValue) {
+    const submittedLines = submittedTexts.map((entry) => entry.normalizedText);
+    const lines = currentText ? [...submittedLines, currentText] : submittedLines;
+    const nextValue = lines.join(' ');
+    updateTextCharacterTimes(textValue, nextValue);
+    textValue = nextValue;
+    render();
+  }
+
+  function updateAlphabetCollectedLetters(value) {
+    if (value.includes('A')) abcCollected.A = true;
+    if (value.includes('B')) abcCollected.B = true;
+    if (value.includes('C')) abcCollected.C = true;
+    if (abcCollected.A && abcCollected.B && abcCollected.C && !infectionTriggered) {
+      triggerAlphabetInputInfection();
+    }
+  }
+
+  function submitAlphabetInput() {
+    if (!qaEnabled || alphabetInputLocked || openingActive || infectionTriggered) return;
+    const prompt = getCurrentAlphabetInputPrompt();
+    const normalizedText = normalizeAlphabetInput(inputValue || textInput.value).trim();
+    if (!normalizedText) return;
+    submittedTexts.push({
+      id: `${prompt.id}-${Date.now()}-${submittedTexts.length}`,
+      promptId: prompt.id,
+      promptZh: prompt.zh,
+      promptEn: prompt.en,
+      rawText: inputValue || textInput.value,
+      normalizedText,
+      createdAt: Date.now(),
+    });
+    inputValue = '';
+    textInput.value = '';
+    renderAlphabetInputText('');
+    updateAlphabetCollectedLetters(normalizedText);
+    if (!infectionTriggered) {
+      currentPromptIndex = (currentPromptIndex + 1) % ALPHABET_INPUT_PROMPTS.length;
+      renderAlphabetInputPrompt();
+      applyModeFocus();
+    }
+  }
+
+  function triggerAlphabetInputInfection() {
+    if (infectionTriggered) return;
+    infectionTriggered = true;
+    alphabetInputLocked = true;
+    qaChoiceLocked = true;
+    triggerRedLineMadness(4, true);
+    textInput.value = textValue;
+    typeTextByMachine(` ${AUTO_ALICE_RULE_TEXT}`);
+    document.getElementById('qaQuestionZh').textContent = '';
+    document.getElementById('qaQuestionEn').textContent = 'Then you already know what comes next.';
+    setHintText('正在穿过镜面', 'Passing through the mirror');
+    window.setTimeout(() => {
+      window.parent.postMessage({ type: 'alphabet:enter-noclipping' }, '*');
+    }, 6000);
+  }
+
+  function appendBilingual(parent, zhClass, enClass, zh, en, prefix = '', formatEn = false) {
+    const normalizedPrefix = String(prefix).replace(/^([abc])(\.|\))/i, (_, letter, mark) => `${letter.toUpperCase()}${mark}`);
+    const displayEn = formatEn ? formatQaEnglish(en) : en;
+    if (!zh) {
+      const enSpan = document.createElement('span');
+      enSpan.className = enClass;
+      enSpan.textContent = `${normalizedPrefix}${displayEn}`;
+      parent.appendChild(enSpan);
+      return;
+    }
+    const zhSpan = document.createElement('span');
+    zhSpan.className = zhClass;
+    zhSpan.textContent = `${normalizedPrefix}${zh}`;
+    parent.appendChild(zhSpan);
+    if (en) {
+      const separator = document.createElement('span');
+      separator.className = enClass;
+      separator.textContent = '\u00b7';
+      parent.appendChild(separator);
+      const enSpan = document.createElement('span');
+      enSpan.className = enClass;
+      enSpan.textContent = displayEn;
+      parent.appendChild(enSpan);
+    }
+  }
+
+  function getQaQuestion(questionId = currentQuestionId) {
+    return alphabetQuestionTree.nodes[questionId] || alphabetQuestionTree.nodes[alphabetQuestionTree.startId];
+  }
+
+  function showQaQuestion(questionId = currentQuestionId) {
+    currentQuestionId = questionId;
+    const q = getQaQuestion(questionId);
+    const questionZh = [...(q.prefaceZh || []), q.zh].filter(Boolean).join('\n');
+    const questionEn = formatQaEnglish([...(q.prefaceEn || []), q.en].filter(Boolean).join('\n'));
+    document.getElementById('qaQuestionZh').textContent = questionZh;
+    document.getElementById('qaQuestionEn').textContent = questionEn;
+    const overlay = document.getElementById('qaOverlay');
+    overlay.classList.remove('qa-disabled');
+    overlay.style.opacity = '0';
+    qaChoicesEl.classList.remove('qa-disabled');
+    qaChoicesEl.replaceChildren();
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+    });
+    const options = Array.isArray(q.options) ? q.options : [];
+    options.forEach((choice) => {
+      const choiceEl = document.createElement('div');
+      choiceEl.className = 'qa-choice';
+      const optionPrefix = choice.id ? `${String(choice.id).toUpperCase()}. ` : '\u2192 ';
+      appendBilingual(choiceEl, 'qa-choice-zh', 'qa-choice-en', choice.zh, choice.en, optionPrefix, true);
+      choiceEl.addEventListener('click', () => handleChoiceSelect(choice));
+      qaChoicesEl.appendChild(choiceEl);
+      window.setTimeout(() => {
+        choiceEl.classList.add('is-visible');
+      }, 520 + qaChoicesEl.children.length * 180);
+    });
+  }
+
+  function transitionToNextQuestion() {
+    const overlay = document.getElementById('qaOverlay');
+    overlay.style.opacity = '0';
+    qaChoicesEl.classList.add('qa-disabled');
+    setTimeout(() => { showQaQuestion(currentQuestionId); }, 380);
+  }
+
+  async function handleChoiceSelect(choice) {
+    if (!qaEnabled || qaChoiceLocked || openingActive) return;
+    qaChoiceLocked = true;
+    setQaChoicesEnabled(false);
+    const question = getQaQuestion();
+
+    if (question.isFinal) {
+      await dismissChoices();
+      await handleFinalChoice(choice);
+      return;
+    }
+
+    await dismissChoices();
+    await typeTextByMachine(`${formatQaEnglish(choice.en)} `);
+    qaAnswerStart = textValue.length;
+    answeredCount += 1;
+    currentQuestionId = choice.nextId || alphabetQuestionTree.finalId;
+    visitedQuestionIds.push(currentQuestionId);
+    await handleMadnessMilestone();
+    updateProgressBar(answeredCount);
+    qaChoiceLocked = false;
+    transitionToNextQuestion();
+  }
+
+  async function handleFinalChoice(choice) {
+    await typeTextByMachine(choice.en || choice.zh);
+    updateProgressBar(ALPHABET_QA_MAX_QUESTION_COUNT);
+    qaChoicesEl.classList.add('qa-disabled');
+    qaFinalResponseEl.classList.add('is-visible');
+    if (choice.action === 'go-noclipping') {
+      triggerRedLineMadness(4, true);
+      typeTextByMachine(` ${AUTO_ALICE_RULE_TEXT}`);
+      document.getElementById('qaQuestionZh').textContent = '';
+      document.getElementById('qaQuestionEn').textContent = 'Then you already know what comes next.';
+      qaFinalResponseEl.replaceChildren();
+      qaFinalResponseEl.classList.remove('is-visible');
+      setHintText('点击任意处进入下一个画面', 'Click anywhere to enter the next screen');
+      finalPendingMessage = { type: 'alphabet:enter-noclipping' };
+    } else {
+      qaFinalResponseEl.replaceChildren();
+      appendBilingual(qaFinalResponseEl, 'qa-final-zh', 'qa-final-en', '欢迎回来。', 'Welcome back.');
+      qaFinalResponseEl.classList.add('is-blinking');
+      await wait(1300);
+      window.parent.postMessage({ type: 'alphabet:return-home' }, '*');
+    }
+  }
+
+  function setHintText(zh, en) {
+    const hint = document.getElementById('qaHint');
+    const token = ++hintSwapToken;
+    hint.classList.remove('qa-disabled');
+    hint.classList.add('is-swapping');
+    window.setTimeout(() => {
+      if (token !== hintSwapToken) return;
+      hint.querySelectorAll('.qa-hint-card').forEach((card) => {
+        card.querySelector('.qa-hint-zh').textContent = zh;
+        card.querySelector('.qa-hint-en').textContent = en;
+      });
+      window.setTimeout(() => {
+        if (token !== hintSwapToken) return;
+        hint.classList.remove('is-swapping');
+      }, 120);
+    }, 520);
+  }
+
+  function setTutorialStep(step) {
+    tutorialStep = step;
+    if (step === 'move') {
+      setHintText('请先拖动红线，移动镜面', 'First, drag the red line to move the mirror');
+    } else if (step === 'move-good') {
+      setHintText('很好', 'Good');
+      window.setTimeout(() => setTutorialStep('rotate'), 4000);
+    } else if (step === 'rotate') {
+      setHintText('按住 Shift 转动镜面红线', 'Hold Shift to rotate the red mirror line');
+    } else if (step === 'good') {
+      setHintText('很好', 'Good');
+      window.setTimeout(() => setTutorialStep('type'), 4000);
+    } else if (step === 'type') {
+      tutorialReadyForQuestions = true;
+      setHintText('现在你可以键入你的文字，准备好了就按下回车键', 'Now you can type your words. Press Enter when you are ready');
+      applyModeFocus();
+    }
+  }
+
+  function initProgressBar() {
+    qaProgressEl.replaceChildren();
+    const fill = document.createElement('div');
+    fill.className = 'qa-progress-fill';
+    qaProgressEl.appendChild(fill);
+  }
+
+  function updateProgressBar(completedCount) {
+    const fill = qaProgressEl.querySelector('.qa-progress-fill');
+    if (!fill) return;
+    const progress = Math.max(0, Math.min(1, completedCount / ALPHABET_QA_MAX_QUESTION_COUNT));
+    fill.style.transform = `scaleX(${progress})`;
+  }
+
+  async function deleteCurrentTextByMachine() {
+    clearQaAutoTypingTimer();
+    while (textInput.value.length > 0) {
+      textInput.value = Array.from(textInput.value).slice(0, -1).join('');
+      textInput.dispatchEvent(new Event('input', { bubbles: true }));
+      await wait(20 + Math.random() * 35);
+    }
+  }
+
+  async function beginQuestionSequence() {
+    if (!tutorialActive || !tutorialReadyForQuestions) return;
+    tutorialActive = false;
+    tutorialReadyForQuestions = false;
+    document.getElementById('qaHint').classList.add('qa-disabled');
+    await deleteCurrentTextByMachine();
+    await animateMirrorHome();
+    qaEnabled = true;
+    initQa();
+  }
+
+  function animateMirrorHome() {
+    const start = {
+      cx: mirror.cx,
+      cy: mirror.cy,
+      angle: mirror.angle,
+    };
+    const target = {
+      cx: STAGE.width / 2,
+      cy: STAGE.height / 2 - 88,
+      angle: 0.18,
+    };
+    const duration = 900;
+    const startTime = performance.now();
+    return new Promise((resolve) => {
+      function tick(now) {
+        const raw = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - raw, 3);
+        mirror.cx = start.cx + (target.cx - start.cx) * eased;
+        mirror.cy = start.cy + (target.cy - start.cy) * eased;
+        mirror.angle = start.angle + (target.angle - start.angle) * eased;
+        render();
+        if (raw < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          resolve();
+        }
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  function initTutorial() {
+    qaEnabled = false;
+    tutorialActive = true;
+    tutorialReadyForQuestions = false;
+    qaChoiceLocked = false;
+    currentPromptIndex = 0;
+    inputValue = '';
+    submittedTexts = [];
+    abcCollected = { A: false, B: false, C: false };
+    infectionTriggered = false;
+    alphabetInputLocked = false;
+    alphabetInputComposing = false;
+    currentQuestionId = alphabetQuestionTree.startId;
+    answeredCount = 0;
+    visitedQuestionIds = [currentQuestionId];
+    triggeredMadnessScores.clear();
+    clearQaAutoTypingTimer();
+    stopMadness();
+    qaChoicesEl.classList.add('qa-disabled');
+    qaFinalResponseEl.replaceChildren();
+    qaFinalResponseEl.classList.remove('is-visible', 'is-blinking');
+    document.getElementById('qaOverlay').style.opacity = '0';
+    textInput.value = DEFAULT_TEXT;
+    updateTextCharacterTimes(textValue, DEFAULT_TEXT);
+    textValue = DEFAULT_TEXT;
+    textCharTimes = Array.from(DEFAULT_TEXT, () => Date.now() - FONT_MATURATION_MS);
+    mode = 'text';
+    initProgressBar();
+    updateProgressBar(0);
+    render();
+    applyModeFocus();
+    setTutorialStep('move');
+  }
+
+  function initQa() {
+    if (!qaEnabled) {
+      document.getElementById('qaOverlay').classList.add('qa-disabled');
+      document.getElementById('qaHint').classList.add('qa-disabled');
+      qaChoicesEl.classList.add('qa-disabled');
+      return;
+    }
+    qaChoiceLocked = false;
+    alphabetInputLocked = false;
+    alphabetInputComposing = false;
+    infectionTriggered = false;
+    currentPromptIndex = 0;
+    inputValue = '';
+    submittedTexts = [];
+    abcCollected = { A: false, B: false, C: false };
+    textInput.value = '';
+    currentQuestionId = alphabetQuestionTree.startId;
+    answeredCount = 0;
+    visitedQuestionIds = [currentQuestionId];
+    triggeredMadnessScores.clear();
+    clearQaAutoTypingTimer();
+    stopMadness();
+    finalPendingMessage = null;
+    qaFinalResponseEl.replaceChildren();
+    qaFinalResponseEl.classList.remove('is-visible', 'is-blinking');
+    document.getElementById('qaHint').classList.add('qa-disabled');
+    updateProgressBar(0);
+    qaAnswerStart = textValue.length;
+    renderAlphabetInputText('');
+    renderAlphabetInputPrompt();
+    applyModeFocus();
+  }
+
+  function toggleAutoPanel() {
+    autoPanel.classList.toggle('is-open');
+  }
+
+  // Auto Text — simulates human typing into the text mode
+  let autoTextTimer = null;
+
+  function stopAutoText() {
+    if (autoTextTimer !== null) {
+      clearTimeout(autoTextTimer);
+      autoTextTimer = null;
+      autoTextStatusEl.textContent = 'Stopped';
+    }
+  }
+
+  function startAutoText() {
+    stopAutoText();
+
+    // Switch to text mode
+    if (mode !== 'text') {
+      mode = 'text';
+      render();
+      applyModeFocus();
+    }
+
+    // Clear existing text
+    textInput.value = '';
+    updateTextCharacterTimes(textValue, '');
+    textValue = '';
+    render();
+
+    const fullText = autoTextContentEl.value;
+    if (!fullText) { autoTextStatusEl.textContent = 'Empty'; return; }
+
+    let charIndex = 0;
+    autoTextStatusEl.textContent = 'Typing…';
+
+    function typeNextChar() {
+      if (charIndex >= fullText.length) {
+        autoTextTimer = null;
+        autoTextStatusEl.textContent = 'Done';
+        return;
+      }
+
+      const char = fullText[charIndex];
+      textInput.value += char;
+      textInput.dispatchEvent(new Event('input', { bubbles: true }));
+      charIndex++;
+
+      // Human-like timing
+      const prevChar = charIndex > 1 ? fullText[charIndex - 2] : '';
+      let delay = 110 + Math.random() * 130;                         // base 110–240 ms
+      if (char === ' ')                delay += 40 + Math.random() * 60;
+      if ('.,;:!?'.includes(char))     delay += 120 + Math.random() * 180;
+      if (char === '-')                delay += 60 + Math.random() * 100;
+      if (char === '\n')               delay += 300 + Math.random() * 350;
+      if ('.:!?'.includes(prevChar))   delay += 250 + Math.random() * 350; // post-sentence pause
+      if (Math.random() < 0.08)        delay *= 0.35;                // burst: occasional fast streak
+
+      autoTextTimer = setTimeout(typeNextChar, delay);
+    }
+
+    typeNextChar();
+  }
+
+  autoTextStartButton.addEventListener('click', startAutoText);
+  autoTextStopButton.addEventListener('click', stopAutoText);
+
+  function exportCurrentViewAsPdf() {
+    openExportPreview();
+  }
+
+  function exportViewBox() {
+    if (exportPageSize.value === 'screen') return `0 0 ${STAGE.width} ${STAGE.height}`;
+    const y = (STAGE.height - EXPORT_STAGE.height) / 2;
+    return `0 ${y} ${EXPORT_STAGE.width} ${EXPORT_STAGE.height}`;
+  }
+
+  function exportCloneStyles() {
+    return `
+      @font-face {
+        font-family: "Antique-Olive-Std-Roman_3869";
+        src: url("./fonts/Antique-Olive%20Regular.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "rorrim";
+        src: url("./fonts/rorrim-Regular.otf") format("opentype");
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+      }
+
+      .mirror-axis,
+      #axisLine {
+        stroke: ${MIRROR_RED} !important;
+        stroke-width: 8 !important;
+        stroke-linecap: butt !important;
+        fill: none !important;
+      }
+
+      .mirror-hit,
+      .cursor-arrow {
+        display: none !important;
+      }
+
+      .text-layer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+      }
+
+      .text-content {
+        width: 100%;
+        max-width: 100%;
+        color: #111111;
+        font-family: "rorrim", sans-serif;
+        font-weight: 400;
+        line-height: 1.02;
+        text-align: center;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+    `;
+  }
+
+  function assertNativeSvgExport(serialized) {
+    const forbidden = [
+      ['foreignObject', 'foreignObject is not allowed in native SVG export.'],
+      ['<object', 'Embedded object/PDF is not allowed in native SVG export.'],
+      ['blob:', 'Blob URLs are not stable for print export. Please wait for image embedding to finish.'],
+      ['file://', 'File URLs are not stable for print export.'],
+    ];
+    const hit = forbidden.find(([needle]) => serialized.includes(needle));
+    if (hit) throw new Error(hit[1]);
+  }
+
+  async function buildExportSvgDocument() {
+    await uploadedAsset.dataReady;
+    if (uploadedAsset.kind === 'image' && uploadedAsset.image && uploadedAsset.image.decode) {
+      await uploadedAsset.image.decode().catch(() => {});
+    }
+    render();
+    if (uploadedAsset.kind === 'pdf') {
+      throw new Error('PDF assets cannot be embedded in native SVG/PNG export in Safari. Convert the PDF page to PNG/JPG first, then upload that image.');
+    }
+    if (uploadedAsset.kind === 'image' && !uploadedAsset.dataUrl) {
+      throw new Error('Image data is not ready yet. Try exporting again in one moment.');
+    }
+    const clone = stage.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.removeAttribute('tabindex');
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    clone.setAttribute('viewBox', exportViewBox());
+    clone.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    clone.querySelectorAll('.mirror-hit, .cursor-arrow').forEach((node) => node.remove());
+    clone.querySelectorAll('.mirror-axis, #axisLine').forEach((node) => {
+      node.setAttribute('stroke', MIRROR_RED);
+      node.setAttribute('stroke-width', '8');
+      node.setAttribute('stroke-linecap', 'butt');
+      node.setAttribute('fill', 'none');
+      node.style.stroke = MIRROR_RED;
+      node.style.strokeWidth = '8';
+      node.style.strokeLinecap = 'butt';
+      node.style.fill = 'none';
+    });
+
+    const defs = clone.querySelector('defs') || clone.insertBefore(
+      document.createElementNS('http://www.w3.org/2000/svg', 'defs'),
+      clone.firstChild
+    );
+    const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    style.textContent = exportCloneStyles();
+    defs.insertBefore(style, defs.firstChild);
+    assertNativeSvgExport(new XMLSerializer().serializeToString(clone));
+    return clone;
+  }
+
+  async function prepareExportClone() {
+    return buildExportSvgDocument();
+  }
+
+  async function openExportPreview() {
+    applyExportPageSize();
+    try {
+      const clone = await buildExportSvgDocument();
+      exportPreviewSurface.replaceChildren(clone);
+      exportPreviewOverlay.classList.add('is-open');
+      exportPreviewOverlay.setAttribute('aria-hidden', 'false');
+      setStatus(exportPageSize.value === 'screen'
+        ? 'Previewing browser default PDF export.'
+        : 'Previewing strict 60mm x 30mm / 2:1 PDF export.');
+    } catch (error) {
+      setStatus(`Preview failed: ${error.message}`);
+    }
+  }
+
+  function closeExportPreview() {
+    exportPreviewOverlay.classList.remove('is-open');
+    exportPreviewOverlay.setAttribute('aria-hidden', 'true');
+    exportPreviewSurface.replaceChildren();
+  }
+
+  function canvasToBlob(canvas, type = 'image/png', quality) {
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), type, quality);
+    });
+  }
+
+  function stripMaterialImagesForRasterClone(clone) {
+    clone.querySelectorAll('.material-layer').forEach((node) => node.remove());
+  }
+
+  function parsedExportViewBox() {
+    const parts = exportViewBox().split(/\s+/).map(Number);
+    return { x: parts[0], y: parts[1], width: parts[2], height: parts[3] };
+  }
+
+  function applyExportCanvasView(context, width, height) {
+    const viewBox = parsedExportViewBox();
+    context.scale(width / viewBox.width, height / viewBox.height);
+    context.translate(-viewBox.x, -viewBox.y);
+  }
+
+  function applyCanvasHalfPlaneClip(context, sign) {
+    const points = polygonPointsForHalfPlane(sign, mirror.cx, mirror.cy, mirror.angle, 0);
+    context.beginPath();
+    points.forEach(([x, y], index) => {
+      if (index === 0) context.moveTo(x, y);
+      else context.lineTo(x, y);
+    });
+    context.closePath();
+    context.clip();
+  }
+
+  function applyCanvasReflection(context) {
+    const matrix = matrixForReflection();
+    context.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f);
+  }
+
+  function drawUploadedAssetOnExportCanvas(context) {
+    if (uploadedAsset.kind !== 'image' || !uploadedAsset.image) return;
+    const x = -uploadedAsset.width / 2;
+    const y = -uploadedAsset.height / 2;
+    context.save();
+    context.translate(uploadedAsset.x, uploadedAsset.y);
+    context.rotate(uploadedAsset.rotation * Math.PI / 180);
+    context.scale(uploadedAsset.scale, uploadedAsset.scale);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(uploadedAsset.image, x, y, uploadedAsset.width, uploadedAsset.height);
+    context.restore();
+  }
+
+  function drawUploadedAssetPairOnExportCanvas(context) {
+    if (uploadedAsset.kind !== 'image' || !uploadedAsset.image) return;
+
+    context.save();
+    applyCanvasHalfPlaneClip(context, -1);
+    drawUploadedAssetOnExportCanvas(context);
+    context.restore();
+
+    if (spatial.mode !== 'slice') {
+      context.save();
+      applyCanvasHalfPlaneClip(context, 1);
+      applyCanvasReflection(context);
+      drawUploadedAssetOnExportCanvas(context);
+      context.restore();
+    }
+  }
+
+  async function renderExportSvgToCanvas(width, height, options = {}) {
+    const clone = await buildExportSvgDocument();
+    if (options.omitMaterialImages) stripMaterialImagesForRasterClone(clone);
+    return new Promise((resolve, reject) => {
+      clone.setAttribute('width', width);
+      clone.setAttribute('height', height);
+      const serialized = new XMLSerializer().serializeToString(clone);
+      try {
+        assertNativeSvgExport(serialized);
+      } catch (error) {
+        reject(error);
+        return;
+      }
+      const svgBlob = new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, width, height);
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = 'high';
+        if (options.drawMaterialImagesManually) {
+          context.save();
+          applyExportCanvasView(context, width, height);
+          drawUploadedAssetPairOnExportCanvas(context);
+          context.restore();
+        }
+        context.drawImage(image, 0, 0, width, height);
+        URL.revokeObjectURL(svgUrl);
+        resolve(canvas);
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        reject(new Error('Safari could not render the SVG preview for download.'));
+      };
+      image.src = svgUrl;
+    });
+  }
+
+  async function exportCurrentViewAsSvg() {
+    try {
+      const clone = await buildExportSvgDocument();
+      clone.setAttribute('width', '60mm');
+      clone.setAttribute('height', '30mm');
+      const serialized = new XMLSerializer().serializeToString(clone);
+      const blob = new Blob([
+        '<?xml version="1.0" encoding="UTF-8"?>\n',
+        serialized,
+      ], { type: 'image/svg+xml;charset=utf-8' });
+      downloadBlob(blob, 'Mirror-Alphabet-60x30mm-vector.svg');
+      setStatus('Downloaded vector SVG from the exact preview source.');
+    } catch (error) {
+      setStatus(`SVG export failed: ${error.message}`);
+    }
+  }
+
+  function applyExportPageSize() {
+    let style = document.getElementById('exportPageStyle');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'exportPageStyle';
+      document.head.appendChild(style);
+    }
+
+    if (exportPageSize.value === 'book-spread-60x30') {
+      style.textContent = `
+        @media print {
+          @page {
+            size: 60mm 30mm;
+            margin: 0;
+          }
+
+          html,
+          body,
+          main,
+          svg#stage {
+            width: 60mm !important;
+            height: 30mm !important;
+            min-width: 60mm !important;
+            min-height: 30mm !important;
+            max-width: 60mm !important;
+            max-height: 30mm !important;
+          }
+        }
+      `;
+      setStatus('Exporting PDF at 60mm x 30mm / 2:1.');
+      return;
+    }
+
+    style.textContent = `
+      @media print {
+        @page {
+          size: landscape;
+          margin: 0;
+        }
+      }
+    `;
+    setStatus('Exporting PDF at browser landscape size.');
+  }
+
+  function downloadBlob(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function crc32(bytes) {
+    let crc = -1;
+    for (let index = 0; index < bytes.length; index += 1) {
+      crc ^= bytes[index];
+      for (let bit = 0; bit < 8; bit += 1) {
+        crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+      }
+    }
+    return (crc ^ -1) >>> 0;
+  }
+
+  function uint32Bytes(value) {
+    return [
+      (value >>> 24) & 255,
+      (value >>> 16) & 255,
+      (value >>> 8) & 255,
+      value & 255,
+    ];
+  }
+
+  function pngChunk(type, data) {
+    const typeBytes = Array.from(type).map((char) => char.charCodeAt(0));
+    const body = new Uint8Array(typeBytes.length + data.length);
+    body.set(typeBytes, 0);
+    body.set(data, typeBytes.length);
+    const chunk = new Uint8Array(12 + data.length);
+    chunk.set(uint32Bytes(data.length), 0);
+    chunk.set(typeBytes, 4);
+    chunk.set(data, 8);
+    chunk.set(uint32Bytes(crc32(body)), 8 + data.length);
+    return chunk;
+  }
+
+  function pngBlobWithDpi(arrayBuffer, dpi) {
+    const source = new Uint8Array(arrayBuffer);
+    const pixelsPerMeter = Math.round(dpi / 0.0254);
+    const data = new Uint8Array(9);
+    data.set(uint32Bytes(pixelsPerMeter), 0);
+    data.set(uint32Bytes(pixelsPerMeter), 4);
+    data[8] = 1;
+    const physicalSizeChunk = pngChunk('pHYs', data);
+    const insertAfterIhdr = 33;
+    return new Blob([
+      source.slice(0, insertAfterIhdr),
+      physicalSizeChunk,
+      source.slice(insertAfterIhdr),
+    ], { type: 'image/png' });
+  }
+
+  function concatBytes(chunks) {
+    const encoder = new TextEncoder();
+    const encoded = chunks.map((chunk) => (
+      typeof chunk === 'string' ? encoder.encode(chunk) : chunk
+    ));
+    const total = encoded.reduce((sum, chunk) => sum + chunk.length, 0);
+    const output = new Uint8Array(total);
+    let offset = 0;
+    encoded.forEach((chunk) => {
+      output.set(chunk, offset);
+      offset += chunk.length;
+    });
+    return output;
+  }
+
+  function pdfNumber(value) {
+    return Number(value.toFixed(4)).toString();
+  }
+
+  function pdfRgb(hex) {
+    const clean = hex.replace('#', '');
+    return [
+      parseInt(clean.slice(0, 2), 16) / 255,
+      parseInt(clean.slice(2, 4), 16) / 255,
+      parseInt(clean.slice(4, 6), 16) / 255,
+    ].map(pdfNumber).join(' ');
+  }
+
+  function pdfPolygonClip(points) {
+    return `${points.map(([x, y], index) => (
+      `${pdfNumber(x)} ${pdfNumber(y)} ${index === 0 ? 'm' : 'l'}`
+    )).join('\n')}\nh\nW n\n`;
+  }
+
+  function pdfReflectionMatrix() {
+    const matrix = matrixForReflection();
+    return `${pdfNumber(matrix.a)} ${pdfNumber(matrix.b)} ${pdfNumber(matrix.c)} ${pdfNumber(matrix.d)} ${pdfNumber(matrix.e)} ${pdfNumber(matrix.f)} cm\n`;
+  }
+
+  function tokenizePathData(path) {
+    return path.match(/[a-zA-Z]|[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/g) || [];
+  }
+
+  function glyphPathToPdf(path, originX, baselineY, scale) {
+    const tokens = tokenizePathData(path);
+    let index = 0;
+    let command = '';
+    let currentX = 0;
+    let currentY = 0;
+    let startedWithMove = false;
+    const out = [];
+    const isCommand = (token) => /^[a-zA-Z]$/.test(token);
+    const point = (x, y) => [
+      originX + x * scale,
+      baselineY - y * scale,
+    ];
+
+    while (index < tokens.length) {
+      if (isCommand(tokens[index])) {
+        command = tokens[index++];
+        startedWithMove = false;
+      }
+
+      if (command === 'M' || command === 'm') {
+        if (index + 1 >= tokens.length) break;
+        const x = Number(tokens[index++]);
+        const y = Number(tokens[index++]);
+        const [px, py] = point(x, y);
+        out.push(`${pdfNumber(px)} ${pdfNumber(py)} ${startedWithMove ? 'l' : 'm'}`);
+        currentX = x;
+        currentY = y;
+        startedWithMove = true;
+        command = 'L';
+      } else if (command === 'L' || command === 'l') {
+        if (index + 1 >= tokens.length || isCommand(tokens[index])) continue;
+        const x = Number(tokens[index++]);
+        const y = Number(tokens[index++]);
+        const [px, py] = point(x, y);
+        out.push(`${pdfNumber(px)} ${pdfNumber(py)} l`);
+        currentX = x;
+        currentY = y;
+      } else if (command === 'H' || command === 'h') {
+        if (index >= tokens.length || isCommand(tokens[index])) continue;
+        const x = Number(tokens[index++]);
+        const [px, py] = point(x, currentY);
+        out.push(`${pdfNumber(px)} ${pdfNumber(py)} l`);
+        currentX = x;
+      } else if (command === 'V' || command === 'v') {
+        if (index >= tokens.length || isCommand(tokens[index])) continue;
+        const y = Number(tokens[index++]);
+        const [px, py] = point(currentX, y);
+        out.push(`${pdfNumber(px)} ${pdfNumber(py)} l`);
+        currentY = y;
+      } else if (command === 'C' || command === 'c') {
+        if (index + 5 >= tokens.length || isCommand(tokens[index])) continue;
+        const x1 = Number(tokens[index++]);
+        const y1 = Number(tokens[index++]);
+        const x2 = Number(tokens[index++]);
+        const y2 = Number(tokens[index++]);
+        const x = Number(tokens[index++]);
+        const y = Number(tokens[index++]);
+        const p1 = point(x1, y1);
+        const p2 = point(x2, y2);
+        const p = point(x, y);
+        out.push(`${pdfNumber(p1[0])} ${pdfNumber(p1[1])} ${pdfNumber(p2[0])} ${pdfNumber(p2[1])} ${pdfNumber(p[0])} ${pdfNumber(p[1])} c`);
+        currentX = x;
+        currentY = y;
+      } else if (command === 'Q' || command === 'q') {
+        if (index + 3 >= tokens.length || isCommand(tokens[index])) continue;
+        const x1 = Number(tokens[index++]);
+        const y1 = Number(tokens[index++]);
+        const x = Number(tokens[index++]);
+        const y = Number(tokens[index++]);
+        const c1x = currentX + (2 / 3) * (x1 - currentX);
+        const c1y = currentY + (2 / 3) * (y1 - currentY);
+        const c2x = x + (2 / 3) * (x1 - x);
+        const c2y = y + (2 / 3) * (y1 - y);
+        const p1 = point(c1x, c1y);
+        const p2 = point(c2x, c2y);
+        const p = point(x, y);
+        out.push(`${pdfNumber(p1[0])} ${pdfNumber(p1[1])} ${pdfNumber(p2[0])} ${pdfNumber(p2[1])} ${pdfNumber(p[0])} ${pdfNumber(p[1])} c`);
+        currentX = x;
+        currentY = y;
+      } else if (command === 'Z' || command === 'z') {
+        out.push('h');
+        command = '';
+      } else {
+        index += 1;
+      }
+    }
+
+    return out.join('\n');
+  }
+
+  function fontOutline(family, char) {
+    const fonts = window.MirrorFontOutlines || {};
+    const font = fonts[family] || fonts[RORRIM_FONT_FAMILY];
+    if (!font) return null;
+    return {
+      font,
+      glyph: font.glyphs[char] || font.glyphs['?'] || font.glyphs[' '],
+    };
+  }
+
+  function textLineGlyphRuns() {
+    const now = Date.now();
+    return svgTextLines().map((line) => line.map(({ char, index }) => ({
+      char,
+      family: fontFamilyForAge(textCharTimes[index] || now, now),
+    })));
+  }
+
+  function glyphAdvance(run, size) {
+    const outline = fontOutline(run.family, run.char);
+    if (!outline || !outline.glyph) return size * 0.5;
+    return outline.glyph.advance * size / outline.font.unitsPerEm;
+  }
+
+  function pdfGlyphPath(run, x, centerY, size) {
+    const outline = fontOutline(run.family, run.char);
+    if (!outline || !outline.glyph || !outline.glyph.path) return '';
+    const scale = size / outline.font.unitsPerEm;
+    const baselineY = centerY + ((outline.font.ascender + outline.font.descender) / 2) * scale;
+    return `${glyphPathToPdf(outline.glyph.path, x, baselineY, scale)}\nf\n`;
+  }
+
+  function pdfTextPaths() {
+    let content = '0 0 0 rg\n';
+    if (mode === 'single') {
+      const run = {
+        char: GLYPH.char,
+        family: fontFamilyForAge(GLYPH.changedAt),
+      };
+      const advance = glyphAdvance(run, GLYPH.size);
+      content += `q\n${pdfNumber(Math.cos(GLYPH.rotation * Math.PI / 180) * GLYPH.mirrorX)} ${pdfNumber(Math.sin(GLYPH.rotation * Math.PI / 180) * GLYPH.mirrorX)} ${pdfNumber(-Math.sin(GLYPH.rotation * Math.PI / 180) * GLYPH.mirrorY)} ${pdfNumber(Math.cos(GLYPH.rotation * Math.PI / 180) * GLYPH.mirrorY)} ${pdfNumber(GLYPH.x)} ${pdfNumber(GLYPH.y)} cm\n`;
+      content += pdfGlyphPath(run, -advance / 2, 0, GLYPH.size);
+      content += 'Q\n';
+      return content;
+    }
+
+    if (mode !== 'text') return '';
+    const lines = textLineGlyphRuns();
+    const lineHeight = textSize * 1.02;
+    const startY = STAGE.height / 2 - (lines.length - 1) * lineHeight / 2;
+    lines.forEach((line, lineIndex) => {
+      const width = line.reduce((sum, run) => sum + glyphAdvance(run, textSize), 0);
+      let cursor = STAGE.width / 2 - width / 2;
+      const centerY = startY + lineIndex * lineHeight;
+      line.forEach((run) => {
+        content += pdfGlyphPath(run, cursor, centerY, textSize);
+        cursor += glyphAdvance(run, textSize);
+      });
+    });
+    return content;
+  }
+
+  function pdfAssetCommands(imageName) {
+    if (!imageName || uploadedAsset.kind !== 'image' || !uploadedAsset.image) return '';
+    const angle = uploadedAsset.rotation * Math.PI / 180;
+    const cos = Math.cos(angle) * uploadedAsset.scale;
+    const sin = Math.sin(angle) * uploadedAsset.scale;
+    const x = -uploadedAsset.width / 2;
+    const y = -uploadedAsset.height / 2;
+    return `q\n${pdfNumber(cos)} ${pdfNumber(sin)} ${pdfNumber(-sin)} ${pdfNumber(cos)} ${pdfNumber(uploadedAsset.x)} ${pdfNumber(uploadedAsset.y)} cm\n${pdfNumber(uploadedAsset.width)} 0 0 ${pdfNumber(uploadedAsset.height)} ${pdfNumber(x)} ${pdfNumber(y)} cm\n/${imageName} Do\nQ\n`;
+  }
+
+  function pdfSceneContent(imageName) {
+    const viewBox = parsedExportViewBox();
+    const pageWidth = 60 / 25.4 * 72;
+    const pageHeight = 30 / 25.4 * 72;
+    const scale = pageWidth / viewBox.width;
+    const red = pdfRgb(MIRROR_RED);
+    const { ax, ay, bx, by } = lineEndpoints();
+    let content = `q\n${pdfNumber(scale)} 0 0 ${pdfNumber(-scale)} ${pdfNumber(-viewBox.x * scale)} ${pdfNumber(pageHeight + viewBox.y * scale)} cm\n`;
+    content += `1 1 1 rg\n${pdfNumber(viewBox.x)} ${pdfNumber(viewBox.y)} ${pdfNumber(viewBox.width)} ${pdfNumber(viewBox.height)} re f\n`;
+
+    content += `q\n${pdfPolygonClip(polygonPointsForHalfPlane(1, mirror.cx, mirror.cy, mirror.angle, 0))}${pdfReflectionMatrix()}${pdfAssetCommands(imageName)}${pdfTextPaths()}Q\n`;
+    content += `q\n${pdfPolygonClip(polygonPointsForHalfPlane(-1, mirror.cx, mirror.cy, mirror.angle, 0))}${pdfAssetCommands(imageName)}${pdfTextPaths()}Q\n`;
+    content += `${red} RG\n8 w\n0 J\n${pdfNumber(ax)} ${pdfNumber(ay)} m\n${pdfNumber(bx)} ${pdfNumber(by)} l\nS\n`;
+    content += 'Q\n';
+    return { content, pageWidth, pageHeight };
+  }
+
+  async function pdfImageResource() {
+    if (uploadedAsset.kind !== 'image' || !uploadedAsset.image) return null;
+    if (uploadedAsset.image.decode) await uploadedAsset.image.decode().catch(() => {});
+    const canvas = document.createElement('canvas');
+    canvas.width = uploadedAsset.image.naturalWidth || uploadedAsset.image.width;
+    canvas.height = uploadedAsset.image.naturalHeight || uploadedAsset.image.height;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(uploadedAsset.image, 0, 0);
+    const blob = await canvasToBlob(canvas, 'image/jpeg', 0.98);
+    return {
+      name: 'Im0',
+      width: canvas.width,
+      height: canvas.height,
+      bytes: new Uint8Array(await blob.arrayBuffer()),
+    };
+  }
+
+  function buildVectorPdf(content, pageWidth, pageHeight, imageResource) {
+    const objects = [];
+    const addObject = (body) => {
+      objects.push(body);
+      return objects.length;
+    };
+
+    const catalogId = addObject('<< /Type /Catalog /Pages 2 0 R >>');
+    const pagesId = addObject('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    let imageId = null;
+    if (imageResource) {
+      imageId = addObject([
+        `<< /Type /XObject /Subtype /Image /Width ${imageResource.width} /Height ${imageResource.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageResource.bytes.length} >>\nstream\n`,
+        imageResource.bytes,
+        '\nendstream',
+      ]);
+    }
+    const resources = imageResource ? `/XObject << /${imageResource.name} ${imageId} 0 R >>` : '';
+    const pageId = addObject(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pdfNumber(pageWidth)} ${pdfNumber(pageHeight)}] /Resources << ${resources} >> /Contents ${objects.length + 2} 0 R >>`);
+    const contentId = addObject(`<< /Length ${new TextEncoder().encode(content).length} >>\nstream\n${content}endstream`);
+
+    objects[catalogId - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R >>`;
+    objects[pagesId - 1] = `<< /Type /Pages /Kids [${pageId} 0 R] /Count 1 >>`;
+    objects[pageId - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pdfNumber(pageWidth)} ${pdfNumber(pageHeight)}] /Resources << ${resources} >> /Contents ${contentId} 0 R >>`;
+
+    const chunks = ['%PDF-1.4\n'];
+    const offsets = [0];
+    let byteOffset = concatBytes(chunks).length;
+    objects.forEach((object, index) => {
+      offsets.push(byteOffset);
+      const objectChunks = [`${index + 1} 0 obj\n`];
+      if (Array.isArray(object)) objectChunks.push(...object);
+      else objectChunks.push(object);
+      objectChunks.push('\nendobj\n');
+      const bytes = concatBytes(objectChunks);
+      chunks.push(bytes);
+      byteOffset += bytes.length;
+    });
+    const xrefOffset = byteOffset;
+    const rows = offsets.map((offset, index) => (
+      index === 0 ? '0000000000 65535 f \n' : `${String(offset).padStart(10, '0')} 00000 n \n`
+    )).join('');
+    chunks.push(`xref\n0 ${objects.length + 1}\n${rows}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+    return new Blob([concatBytes(chunks)], { type: 'application/pdf' });
+  }
+
+  async function exportCurrentViewAsPng() {
+    setStatus('Rendering print PNG from native SVG source at 8x...');
+    try {
+      const canvas = await renderExportSvgToCanvas(EXPORT_PRINT_PNG.width, EXPORT_PRINT_PNG.height, {
+        omitMaterialImages: true,
+        drawMaterialImagesManually: true,
+      });
+      const blob = await canvasToBlob(canvas, 'image/png');
+      if (!blob) throw new Error('empty PNG blob');
+      const buffer = await blob.arrayBuffer();
+      const dpiBlob = pngBlobWithDpi(buffer, EXPORT_PRINT_PNG.dpi);
+      downloadBlob(dpiBlob, 'Mirror-Alphabet-60x30mm-native-8x.png');
+      setStatus(`Downloaded native SVG raster PNG: ${EXPORT_PRINT_PNG.width} x ${EXPORT_PRINT_PNG.height}px, tagged ${EXPORT_PRINT_PNG.dpi}dpi for 60mm x 30mm.`);
+    } catch (error) {
+      setStatus(`PNG export failed: ${error.message}`);
+    }
+  }
+
+  async function downloadCurrentViewAsPdf() {
+    setStatus('Building vector PDF...');
+    try {
+      await uploadedAsset.dataReady;
+      const imageResource = await pdfImageResource();
+      const scene = pdfSceneContent(imageResource ? imageResource.name : null);
+      const pdfBlob = buildVectorPdf(scene.content, scene.pageWidth, scene.pageHeight, imageResource);
+      downloadBlob(pdfBlob, 'Mirror-Alphabet-60x30mm-vector.pdf');
+      closeExportPreview();
+      setStatus(`Downloaded vector PDF. Red line: ${MIRROR_RED}.`);
+    } catch (error) {
+      setStatus(`Vector PDF export failed: ${error.message}`);
+    }
+  }
+
+  function setStatus(message) {
+    const status = document.getElementById('searchStatus');
+    if (status) status.textContent = message;
+  }
+
+  exportPdfButton.addEventListener('click', exportCurrentViewAsPdf);
+  exportPngButton.addEventListener('click', exportCurrentViewAsPng);
+  exportVectorSvgButton.addEventListener('click', exportCurrentViewAsSvg);
+  confirmExportPdfButton.addEventListener('click', downloadCurrentViewAsPdf);
+  cancelExportPreviewButton.addEventListener('click', closeExportPreview);
+  assetInput.addEventListener('change', () => setUploadedAssetFromFile(assetInput.files[0]));
+  clearAssetButton.addEventListener('click', clearUploadedAsset);
+  [assetScaleInput, assetRotationInput, assetXInput, assetYInput].forEach((input) => {
+    input.addEventListener('input', applyAssetControlValues);
+  });
+  textInput.value = DEFAULT_TEXT;
+  updateAssetControls();
+
+  window.addEventListener('keydown', (event) => {
+    const usesCommand = event.metaKey || event.ctrlKey;
+    if (!usesCommand) return;
+
+    // Cmd+/- : adjust text size globally, regardless of focus
+    if (!event.shiftKey && (event.key === '=' || event.key === '+' || event.key === '-' || event.key === '_')) {
+      event.preventDefault();
+      if (event.key === '-' || event.key === '_') {
+        textSize = Math.max(24, textSize - 8);
+      } else {
+        textSize = textSize + 8;
+      }
+      render();
+      return;
+    }
+
+    if (!event.shiftKey) return;
+
+    const key = event.key.toLowerCase();
+    if (key === 'a') {
+      event.preventDefault();
+      toggleAutoPanel();
+    } else if (key === 'e') {
+      event.preventDefault();
+      exportCurrentViewAsPdf();
+    }
+  });
+
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function openingTypingDelays(text, totalMs) {
+    const chars = Array.from(text);
+    const weights = chars.map((char) => {
+      let weight = 1 + (Math.random() - 0.5) * OPENING_SETTINGS.typingRandomness * 2;
+      if (char === '\n') weight += 2.2 + Math.random() * 0.7;
+      if (char === ' ') weight += 0.4 + Math.random() * 0.5;
+      if (Math.random() < 0.12) weight *= 0.45;
+      return Math.max(0.25, weight);
+    });
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0) || 1;
+    return weights.map((weight) => (weight / totalWeight) * totalMs);
+  }
+
+  function openingBaseFontPx() {
+    return Math.min(window.innerWidth * 0.0372, window.innerHeight * 0.141);
+  }
+
+  function measureOpeningLineWidth(line, fontFamily, fontSize) {
+    if (!measureOpeningLineWidth.canvas) {
+      measureOpeningLineWidth.canvas = document.createElement('canvas');
+      measureOpeningLineWidth.context = measureOpeningLineWidth.canvas.getContext('2d');
+    }
+    const context = measureOpeningLineWidth.context;
+    context.font = `400 ${fontSize}px "${fontFamily}", sans-serif`;
+    return context.measureText(line).width;
+  }
+
+  function widestOpeningLineWidth(lines, fontFamilies, fontSize) {
+    return lines.reduce((widest, line) => {
+      return Math.max(
+        widest,
+        ...fontFamilies.map((fontFamily) => measureOpeningLineWidth(line, fontFamily, fontSize))
+      );
+    }, 0);
+  }
+
+  function fitOpeningTypography(text, fontFamily, scale, lineHeight, fillHeight = false) {
+    const lines = text.split('\n');
+    const fontFamilies = Array.isArray(fontFamily) ? fontFamily : [fontFamily];
+    const styles = window.getComputedStyle(openingTextBox);
+    const availableWidth = openingTextBox.clientWidth -
+      parseFloat(styles.paddingLeft) -
+      parseFloat(styles.paddingRight);
+    const availableHeight = openingTextBox.clientHeight -
+      parseFloat(styles.paddingTop) -
+      parseFloat(styles.paddingBottom) -
+      (fillHeight ? 20 : 0);
+    const targetSize = openingBaseFontPx() * scale;
+    const widestLine = widestOpeningLineWidth(lines, fontFamilies, targetSize);
+    const textHeight = targetSize + Math.max(0, lines.length - 1) * targetSize * lineHeight;
+    const widthRatio = widestLine > 0 ? availableWidth / widestLine : 1;
+    const heightRatio = textHeight > 0 ? availableHeight / textHeight : 1;
+    const fitRatio = fillHeight ? heightRatio : Math.min(1, widthRatio, heightRatio);
+    const fittedSize = targetSize * fitRatio * (fillHeight ? 0.8 : 1);
+    openingTextBox.style.setProperty('--opening-font-size', `${Math.max(12, fittedSize)}px`);
+    openingTextBox.style.setProperty('--opening-line-height', String(lineHeight));
+  }
+
+  function setOpeningAlignment(align = 'center') {
+    openingTextBox.style.textAlign = align;
+    openingTextBox.style.justifyContent = align === 'right' ? 'flex-end' : 'center';
+  }
+
+  function renderOpeningPlainText(value, fontFamily, scale = 1, lineHeight = 1.04, fitText = OPENING_ALPHABET_TEXT, align = 'center') {
+    fitOpeningTypography(fitText, fontFamily, scale, lineHeight);
+    setOpeningAlignment(align);
+    openingTextBox.style.fontFamily = `"${fontFamily}", sans-serif`;
+    openingTextBox.textContent = value;
+  }
+
+  function renderOpeningMaturedText(value, charTimes, scale = 1, lineHeight = 1.04, fitText = OPENING_ALPHABET_TEXT, align = 'center', fillHeight = false) {
+    const now = Date.now();
+    fitOpeningTypography(fitText, [ANTIQUE_FONT_FAMILY, RORRIM_FONT_FAMILY], scale, lineHeight, fillHeight);
+    setOpeningAlignment(align);
+    openingTextBox.style.fontFamily = 'inherit';
+    openingTextBox.innerHTML = Array.from(value).map((char, index) => {
+      if (char === '\n') return '<br>';
+      const fontFamily = fontFamilyForAge(charTimes[index] || now, now);
+      return `<span style="font-family:'${escapeAttribute(fontFamily)}', sans-serif">${escapeHtml(char)}</span>`;
+    }).join('');
+  }
+
+  async function typeOpeningPlainText(text, fontFamily, durationMs, scale = 1, lineHeight = 1.04, align = 'center') {
+    const chars = Array.from(text);
+    const delays = openingTypingDelays(text, durationMs);
+    let value = '';
+    renderOpeningPlainText(value, fontFamily, scale, lineHeight, text, align);
+    for (let index = 0; index < chars.length; index++) {
+      value += chars[index];
+      renderOpeningPlainText(value, fontFamily, scale, lineHeight, text, align);
+      await wait(delays[index]);
+    }
+    await wait(OPENING_SETTINGS.holdMs);
+    await deleteOpeningPlainText(value, fontFamily, scale, lineHeight, align);
+  }
+
+  async function deleteOpeningPlainText(text, fontFamily, scale = 1, lineHeight = 1.04, align = 'center') {
+    let value = text;
+    const chars = Array.from(text);
+    const baseDelay = 3000 / Math.max(1, chars.length);
+    let step = 0;
+    while (value.length > 0) {
+      value = Array.from(value).slice(0, -1).join('');
+      renderOpeningPlainText(value, fontFamily, scale, lineHeight, text, align);
+      const progress = step / Math.max(1, chars.length - 1);
+      await wait(baseDelay * (1.75 - progress * 1.35));
+      step += 1;
+    }
+  }
+
+  async function typeOpeningMaturedText(text, durationMs, scale = 1, lineHeight = 1.04, align = 'center', fitText = text, fillHeight = false) {
+    const chars = Array.from(text);
+    const delays = openingTypingDelays(text, durationMs);
+    const charTimes = [];
+    let value = '';
+    renderOpeningMaturedText(value, charTimes, scale, lineHeight, fitText, align, fillHeight);
+    for (let index = 0; index < chars.length; index++) {
+      value += chars[index];
+      charTimes.push(Date.now());
+      renderOpeningMaturedText(value, charTimes, scale, lineHeight, fitText, align, fillHeight);
+      await wait(delays[index]);
+    }
+
+    const lastCharTime = charTimes[charTimes.length - 1] || Date.now();
+    while (Date.now() - lastCharTime < FONT_MATURATION_MS) {
+      await wait(OPENING_SETTINGS.transitionRenderMs);
+      renderOpeningMaturedText(value, charTimes, scale, lineHeight, fitText, align, fillHeight);
+    }
+    renderOpeningMaturedText(value, charTimes, scale, lineHeight, fitText, align, fillHeight);
+    await wait(OPENING_SETTINGS.holdMs);
+  }
+
+  async function deleteOpeningText(text) {
+    let value = text;
+    while (value.length > 0) {
+      value = Array.from(value).slice(0, -1).join('');
+      renderOpeningMaturedText(
+        value,
+        Array.from(value, () => Date.now() - FONT_MATURATION_MS),
+        OPENING_SETTINGS.thirdFontScale,
+        OPENING_SETTINGS.thirdLineHeight,
+        text,
+        'right'
+      );
+      await wait(42 + Math.random() * 55);
+    }
+    openingTextBox.textContent = '';
+    await wait(OPENING_SETTINGS.holdMs);
+  }
+
+  function resetOpeningStateForGame() {
+    stopAutoText();
+    cancelMirrorJoy();
+    openingActive = false;
+    initTutorial();
+  }
+
+  async function runOpeningSequence() {
+    const splash = document.getElementById('splashScreen');
+    if (!OPENING_SETTINGS.enabled) {
+      splash.style.display = 'none';
+      resetOpeningStateForGame();
+      return;
+    }
+
+    await document.fonts.ready;
+    await typeOpeningPlainText(
+      OPENING_ALPHABET_TEXT,
+      ANTIQUE_FONT_FAMILY,
+      OPENING_SETTINGS.firstTypingMs,
+      OPENING_SETTINGS.firstFontScale,
+      OPENING_SETTINGS.firstLineHeight
+    );
+    await typeOpeningMaturedText(
+      OPENING_ALPHABET_TEXT,
+      OPENING_SETTINGS.thirdTypingMs,
+      OPENING_SETTINGS.thirdFontScale,
+      OPENING_SETTINGS.thirdLineHeight,
+      'right',
+      OPENING_TURN_TEXT,
+      true
+    );
+    await typeOpeningMaturedText(
+      OPENING_TURN_TEXT,
+      Math.min(1800, OPENING_SETTINGS.thirdTypingMs),
+      OPENING_SETTINGS.thirdFontScale,
+      OPENING_SETTINGS.thirdLineHeight,
+      'right'
+    );
+    await deleteOpeningText(OPENING_TURN_TEXT);
+
+    resetOpeningStateForGame();
+    splash.style.transitionDuration = `${OPENING_SETTINGS.fadeOutMs}ms`;
+    splash.classList.add('splash-out');
+    await wait(OPENING_SETTINGS.fadeOutMs + 40);
+    splash.style.display = 'none';
+  }
+
+  window.MirrorAlphabetApp = {
+    stage,
+    STAGE,
+    GLYPH,
+    mirror,
+    spatial,
+    uploadedAsset,
+    axisLine,
+    axisHit,
+    originalWrap,
+    reflectionWrap,
+    analysisLayer,
+    render,
+    applyModeFocus,
+    toggleMode,
+    toggleSpatialMode,
+    lineEndpoints,
+    matrixForReflection,
+    polygonPointsForHalfPlane,
+    escapeHtml,
+    exportCurrentViewAsPdf,
+    setExternalRenderHook(fn) {
+      externalRenderHook = fn;
+    },
+    // Q&A controls (accessible from browser console or parent frame)
+    getQaEnabled() { return qaEnabled; },
+    setQaEnabled(v) {
+      qaEnabled = Boolean(v);
+      const overlay = document.getElementById('qaOverlay');
+      const hint = document.getElementById('qaHint');
+      if (!qaEnabled) {
+        overlay.classList.add('qa-disabled');
+        hint.classList.add('qa-disabled');
+        qaChoicesEl.classList.add('qa-disabled');
+      } else {
+        overlay.classList.remove('qa-disabled');
+        hint.classList.add('qa-disabled');
+        renderAlphabetInputPrompt();
+        applyModeFocus();
+      }
+    },
+    getQaIndex() { return currentPromptIndex; },
+    setQaIndex(i) {
+      const index = ((i % ALPHABET_INPUT_PROMPTS.length) + ALPHABET_INPUT_PROMPTS.length) % ALPHABET_INPUT_PROMPTS.length;
+      currentPromptIndex = index;
+      renderAlphabetInputPrompt();
+    },
+  };
+
+  render();
+  runOpeningSequence();
+</script>
+<script src="./mirror-search.js"></script>
+</body>
+</html>

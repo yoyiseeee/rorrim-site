@@ -23,6 +23,16 @@
 # misc
 .DS_Store
 *.pem
+.tmp/
+
+# local source assets that are too large for GitHub Pages
+/ikea-mirror-scan/
+/public/noise/
+/app/components/chapters/noiseTopologyFragments.ts
+/public/noclipping/axis-demo/**/*.png
+/public/spaces/
+/public/noclip/
+/public/noclipping/ikea-mirror-catalogue/
 
 # debug
 npm-debug.log*

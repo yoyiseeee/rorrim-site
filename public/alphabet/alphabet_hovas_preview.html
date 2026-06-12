@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>rorrim Structure Preview v2</title>
+<style>
+  :root {
+    --bg: #f3efe7;
+    --paper: #fffdf8;
+    --ink: #171513;
+    --muted: #6e655b;
+    --line: #ddd4c5;
+    --card: #faf7f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    background:
+      radial-gradient(circle at top left, #fffdf6 0, #f6f1e7 45%, #efe7d9 100%);
+    color: var(--ink);
+    padding: 28px;
+  }
+  main { max-width: 1180px; margin: 0 auto; }
+  h1 { margin: 0 0 6px; font-size: 26px; }
+  .lede { margin: 0 0 20px; color: var(--muted); line-height: 1.5; max-width: 860px; }
+  .board {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 18px;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    margin: 30px 0 14px;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 8px 26px rgba(34, 26, 12, 0.05);
+  }
+  .glyphbox {
+    width: 170px;
+    margin: 0 auto 10px;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: 22px;
+  }
+  .meta {
+    margin: 4px 0;
+    font-size: 12px;
+    color: #3d372f;
+  }
+  .note {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-top: 12px;
+  }
+  .summary section {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px 16px;
+  }
+  .summary h4 { margin: 0 0 10px; font-size: 15px; }
+  .summary ul { margin: 0; padding-left: 18px; }
+  .summary li { margin: 4px 0; }
+  @media (max-width: 700px) {
+    body { padding: 18px; }
+    .glyphbox { width: 100%; max-width: 170px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Structure Preview v2: H / O / A / V / S</h1>
+  <p class="lede">
+    This round only allows <strong>H</strong>, <strong>O</strong>, <strong>A</strong>,
+    <strong>V</strong>, <strong>S</strong> as mother glyphs. The goal is not full font output yet,
+    but to test whether a minimal mother set can plausibly support the Latin skeletons.
+    All previewed glyphs are kept at cap height.
+  </p>
+
+  <section class="board">
+    <svg xmlns="http://www.w3.org/2000/svg" width="994" height="1160" viewBox="0 0 994 1160">
+<style>
+        .title { font: 700 18px sans-serif; fill: #222; }
+        .sub { font: 600 11px monospace; fill: #7a6f60; letter-spacing: 0.06em; }
+        .small { font: 500 10px sans-serif; fill: #544c41; }
+        .note { font: 500 10px sans-serif; fill: #7b7267; }
+        </style>
+<text class="title" x="24" y="24">Mother Glyphs</text>
+<rect x="24" y="52" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,52.9,191.0)" fill-rule="nonzero">
+<path d="M182 0V1534H293H404V886H1106V1534H1217H1328V0H1217H1106V662H404V0H293H182Z" fill="#111111"/>
+</g>
+<text class="sub" x="38" y="226">H</text>
+<text class="small" x="38" y="244">H</text>
+<text class="note" x="38" y="260">direct</text>
+<rect x="218" y="52" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,250.5,188.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+</g>
+<text class="sub" x="232" y="226">O</text>
+<text class="small" x="232" y="244">O</text>
+<text class="note" x="232" y="260">direct</text>
+<rect x="412" y="52" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,443.9,191.0)" fill-rule="nonzero">
+<path d="M41 0 528 1534H714H901L1387 0H1276H1164L1037 431H386L260 0H151H41ZM710 1374 454 655H970L710 1374Z" fill="#111111"/>
+</g>
+<text class="sub" x="426" y="226">A</text>
+<text class="small" x="426" y="244">A</text>
+<text class="note" x="426" y="260">direct</text>
+<rect x="606" y="52" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,643.3,191.0)" fill-rule="nonzero">
+<path d="M9 1534H136H263L644 173L1021 1534H1148H1275L801 0H643H484Z" fill="#111111"/>
+</g>
+<text class="sub" x="620" y="226">V</text>
+<text class="small" x="620" y="244">V</text>
+<text class="note" x="620" y="260">direct</text>
+<rect x="800" y="52" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,845.0,188.8)" fill-rule="nonzero">
+<path d="M991 1132Q897 1234 793.0 1287.5Q689 1341 582 1341Q458 1341 382.0 1284.5Q306 1228 306 1135Q306 1032 372 972Q437 913 583 883Q822 834 930 728Q1038 622 1038 436Q1038 226 901.0 97.5Q764 -31 539 -31Q424 -31 322.0 11.0Q220 53 130 138V395Q208 288 315.0 229.0Q422 170 539 170Q667 170 745.0 240.5Q823 311 823 426Q823 522 755 579Q688 636 539 667Q299 716 191 828Q83 939 83 1136Q83 1329 220.0 1447.0Q357 1565 582 1565Q696 1565 798.0 1523.0Q900 1481 991 1396Z" fill="#111111"/>
+</g>
+<text class="sub" x="814" y="226">S</text>
+<text class="small" x="814" y="244">S</text>
+<text class="note" x="814" y="260">direct</text>
+<text class="title" x="24" y="348">Derived Tests</text>
+<rect x="24" y="376" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,56.5,512.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M850.0 -80.0H1370.0V1614.0H850.0Z" fill="#ffffff"/>
+</g>
+<text class="sub" x="38" y="550">C</text>
+<text class="small" x="38" y="568">O</text>
+<text class="note" x="38" y="584">crop / occlude</text>
+<rect x="218" y="376" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,250.5,512.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M362.0 -80.0H602.0V1614.0H362.0Z" fill="#ffffff"/>
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="232" y="550">D</text>
+<text class="small" x="232" y="568">O + H</text>
+<text class="note" x="232" y="584">crop / mirror-splice</text>
+<rect x="412" y="376" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,452.1,515.0)" fill-rule="nonzero">
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 1310.0H1108.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 655.0H820.0V879.0H100.0Z" fill="#111111"/>
+<path d="M100.0 0.0H1108.0V224.0H100.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="426" y="550">E</text>
+<text class="small" x="426" y="568">H</text>
+<text class="note" x="426" y="584">crop / repeat</text>
+<rect x="606" y="376" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,646.1,515.0)" fill-rule="nonzero">
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 1310.0H1108.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 655.0H820.0V879.0H100.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="620" y="550">F</text>
+<text class="small" x="620" y="568">H</text>
+<text class="note" x="620" y="584">crop</text>
+<rect x="800" y="376" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,832.5,512.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M850.0 -80.0H1370.0V1614.0H850.0Z" fill="#ffffff"/>
+<path d="M710.0 655.0H1130.0V879.0H710.0Z" fill="#111111"/>
+<path d="M1078.0 587.0H1300.0V879.0H1078.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="814" y="550">G</text>
+<text class="small" x="814" y="568">O + H</text>
+<text class="note" x="814" y="584">crop / intervene</text>
+<rect x="24" y="636" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,57.0,775.0)" fill-rule="nonzero">
+<path d="M589.0 0.0H811.0V1534.0H589.0Z" fill="#111111"/>
+<path d="M409.0 1310.0H991.0V1534.0H409.0Z" fill="#111111"/>
+<path d="M409.0 0.0H991.0V224.0H409.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="38" y="810">I</text>
+<text class="small" x="38" y="828">H</text>
+<text class="note" x="38" y="844">crop / mirror</text>
+<rect x="218" y="636" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07432,0,0,-0.07432,259.9,775.0)" fill-rule="nonzero">
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 0.0H1060.0V224.0H100.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="232" y="810">L</text>
+<text class="small" x="232" y="828">H</text>
+<text class="note" x="232" y="844">crop</text>
+<rect x="412" y="636" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,444.5,772.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M362.0 -80.0H602.0V1614.0H362.0Z" fill="#ffffff"/>
+<path d="M90.0 -80.0H1310.0V555.0H90.0Z" fill="#ffffff"/>
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="426" y="810">P</text>
+<text class="small" x="426" y="828">O + H</text>
+<text class="note" x="426" y="844">crop / splice</text>
+<rect x="606" y="636" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07143,0,0,-0.07143,638.5,772.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M80.0 991.0H1320.0V2525.0H80.0Z" fill="#ffffff"/>
+<path d="M100.0 767.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M1078.0 767.0H1300.0V1534.0H1078.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="620" y="810">U</text>
+<text class="small" x="620" y="828">O + H</text>
+<text class="note" x="620" y="844">crop / splice</text>
+<rect x="800" y="636" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.06823,0,0,-0.06823,837.2,770.3)" fill-rule="nonzero">
+<path d="M187.4 1602.4L1387.4 68.4L1212.6 -68.4L12.6 1465.6Z" fill="#111111"/>
+<path d="M1387.4 1465.6L187.4 -68.4L12.6 68.4L1212.6 1602.4Z" fill="#111111"/>
+</g>
+<text class="sub" x="814" y="810">X</text>
+<text class="small" x="814" y="828">A + V</text>
+<text class="note" x="814" y="844">mirror / splice</text>
+<rect x="24" y="896" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07114,0,0,-0.07114,59.2,1035.0)" fill-rule="nonzero">
+<path d="M187.4 1602.4L787.4 835.4L612.6 698.6L12.6 1465.6Z" fill="#111111"/>
+<path d="M1387.4 1465.6L787.4 698.6L612.6 835.4L1212.6 1602.4Z" fill="#111111"/>
+<path d="M589.0 0.0H811.0V879.0H589.0Z" fill="#111111"/>
+</g>
+<text class="sub" x="38" y="1070">Y</text>
+<text class="small" x="38" y="1088">V + H</text>
+<text class="note" x="38" y="1104">crop / splice</text>
+<rect x="218" y="896" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.06447,0,0,-0.06447,252.8,1021.9)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M893.4 466.2L1463.4 -36.8L1316.6 -203.2L746.6 299.8Z" fill="#111111"/>
+</g>
+<text class="sub" x="232" y="1070">Q</text>
+<text class="small" x="232" y="1088">O + V</text>
+<text class="note" x="232" y="1104">splice</text>
+<rect x="412" y="896" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.06899,0,0,-0.06899,446.3,1029.0)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M362.0 -80.0H602.0V1614.0H362.0Z" fill="#ffffff"/>
+<path d="M90.0 -80.0H1310.0V555.0H90.0Z" fill="#ffffff"/>
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M390.5 854.3L1368.5 87.3L1231.5 -87.3L253.5 679.7Z" fill="#111111"/>
+</g>
+<text class="sub" x="426" y="1070">R</text>
+<text class="small" x="426" y="1088">O + H</text>
+<text class="note" x="426" y="1104">crop / splice / rotate</text>
+<rect x="606" y="896" width="170" height="236" rx="20" fill="#fffdf8" stroke="#ddd4c5"/>
+<g transform="matrix(0.07231,0,0,-0.07231,640.4,1033.5)" fill-rule="nonzero">
+<path d="M208.9 1555.3L508.9 21.3L291.1 -21.3L-8.9 1512.7Z" fill="#111111"/>
+<path d="M291.1 21.3L591.1 1555.3L808.9 1512.7L508.9 -21.3Z" fill="#111111"/>
+<path d="M808.9 1555.3L1108.9 21.3L891.1 -21.3L591.1 1512.7Z" fill="#111111"/>
+<path d="M891.1 21.3L1191.1 1555.3L1408.9 1512.7L1108.9 -21.3Z" fill="#111111"/>
+</g>
+<text class="sub" x="620" y="1070">W</text>
+<text class="small" x="620" y="1088">V</text>
+<text class="note" x="620" y="1104">mirror / repeat</text>
+</svg>
+  </section>
+
+  <h2 class="section-title">Mother Glyphs</h2>
+  <section class="grid">
+    
+<article class="card mother">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="H">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,18.1,153.0)" fill-rule="nonzero">
+<path d="M182 0V1534H293H404V886H1106V1534H1217H1328V0H1217H1106V662H404V0H293H182Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>H</h3>
+  <p class="meta"><strong>Source:</strong> H</p>
+  <p class="meta"><strong>Ops:</strong> direct</p>
+  <p class="note">direct mother glyph</p>
+</article>
+<article class="card mother">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="O">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,22.4,150.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>O</h3>
+  <p class="meta"><strong>Source:</strong> O</p>
+  <p class="meta"><strong>Ops:</strong> direct</p>
+  <p class="note">direct mother glyph</p>
+</article>
+<article class="card mother">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="A">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,21.7,153.0)" fill-rule="nonzero">
+<path d="M41 0 528 1534H714H901L1387 0H1276H1164L1037 431H386L260 0H151H41ZM710 1374 454 655H970L710 1374Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>A</h3>
+  <p class="meta"><strong>Source:</strong> A</p>
+  <p class="meta"><strong>Ops:</strong> direct</p>
+  <p class="note">direct mother glyph</p>
+</article>
+<article class="card mother">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="V">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,28.1,153.0)" fill-rule="nonzero">
+<path d="M9 1534H136H263L644 173L1021 1534H1148H1275L801 0H643H484Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>V</h3>
+  <p class="meta"><strong>Source:</strong> V</p>
+  <p class="meta"><strong>Ops:</strong> direct</p>
+  <p class="note">direct mother glyph</p>
+</article>
+<article class="card mother">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="S">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,37.2,150.4)" fill-rule="nonzero">
+<path d="M991 1132Q897 1234 793.0 1287.5Q689 1341 582 1341Q458 1341 382.0 1284.5Q306 1228 306 1135Q306 1032 372 972Q437 913 583 883Q822 834 930 728Q1038 622 1038 436Q1038 226 901.0 97.5Q764 -31 539 -31Q424 -31 322.0 11.0Q220 53 130 138V395Q208 288 315.0 229.0Q422 170 539 170Q667 170 745.0 240.5Q823 311 823 426Q823 522 755 579Q688 636 539 667Q299 716 191 828Q83 939 83 1136Q83 1329 220.0 1447.0Q357 1565 582 1565Q696 1565 798.0 1523.0Q900 1481 991 1396Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>S</h3>
+  <p class="meta"><strong>Source:</strong> S</p>
+  <p class="meta"><strong>Ops:</strong> direct</p>
+  <p class="note">direct mother glyph</p>
+</article>
+  </section>
+
+  <h2 class="section-title">Derived Test Glyphs</h2>
+  <section class="grid">
+    
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="C">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,22.4,150.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M850.0 -80.0H1370.0V1614.0H850.0Z" fill="#ffffff"/>
+</g>
+</svg></div>
+  <h3>C</h3>
+  <p class="meta"><strong>Source:</strong> O</p>
+  <p class="meta"><strong>Ops:</strong> crop / occlude</p>
+  <p class="note">O opened on the right</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="D">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,22.4,150.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M362.0 -80.0H602.0V1614.0H362.0Z" fill="#ffffff"/>
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>D</h3>
+  <p class="meta"><strong>Source:</strong> O + H</p>
+  <p class="meta"><strong>Ops:</strong> crop / mirror-splice</p>
+  <p class="note">half O plus H stem</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="E">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,31.5,153.0)" fill-rule="nonzero">
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 1310.0H1108.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 655.0H820.0V879.0H100.0Z" fill="#111111"/>
+<path d="M100.0 0.0H1108.0V224.0H100.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>E</h3>
+  <p class="meta"><strong>Source:</strong> H</p>
+  <p class="meta"><strong>Ops:</strong> crop / repeat</p>
+  <p class="note">H stem redistributed into three bars</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="F">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,31.5,153.0)" fill-rule="nonzero">
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 1310.0H1108.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 655.0H820.0V879.0H100.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>F</h3>
+  <p class="meta"><strong>Source:</strong> H</p>
+  <p class="meta"><strong>Ops:</strong> crop</p>
+  <p class="note">E without lower bar</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="G">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,22.4,150.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M850.0 -80.0H1370.0V1614.0H850.0Z" fill="#ffffff"/>
+<path d="M710.0 655.0H1130.0V879.0H710.0Z" fill="#111111"/>
+<path d="M1078.0 587.0H1300.0V879.0H1078.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>G</h3>
+  <p class="meta"><strong>Source:</strong> O + H</p>
+  <p class="meta"><strong>Ops:</strong> crop / intervene</p>
+  <p class="note">C plus a horizontal insertion</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="I">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,22.9,153.0)" fill-rule="nonzero">
+<path d="M589.0 0.0H811.0V1534.0H589.0Z" fill="#111111"/>
+<path d="M409.0 1310.0H991.0V1534.0H409.0Z" fill="#111111"/>
+<path d="M409.0 0.0H991.0V224.0H409.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>I</h3>
+  <p class="meta"><strong>Source:</strong> H</p>
+  <p class="meta"><strong>Ops:</strong> crop / mirror</p>
+  <p class="note">central stem with top and bottom caps</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="L">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08866,0,0,-0.08866,33.6,153.0)" fill-rule="nonzero">
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M100.0 0.0H1060.0V224.0H100.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>L</h3>
+  <p class="meta"><strong>Source:</strong> H</p>
+  <p class="meta"><strong>Ops:</strong> crop</p>
+  <p class="note">left stem plus base</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="P">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,22.4,150.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M362.0 -80.0H602.0V1614.0H362.0Z" fill="#ffffff"/>
+<path d="M90.0 -80.0H1310.0V555.0H90.0Z" fill="#ffffff"/>
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>P</h3>
+  <p class="meta"><strong>Source:</strong> O + H</p>
+  <p class="meta"><strong>Ops:</strong> crop / splice</p>
+  <p class="note">upper bowl from O with H stem</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="U">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08521,0,0,-0.08521,22.4,150.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M80.0 991.0H1320.0V2525.0H80.0Z" fill="#ffffff"/>
+<path d="M100.0 767.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M1078.0 767.0H1300.0V1534.0H1078.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>U</h3>
+  <p class="meta"><strong>Source:</strong> O + H</p>
+  <p class="meta"><strong>Ops:</strong> crop / splice</p>
+  <p class="note">lower O with two short stems</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="X">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08140,0,0,-0.08140,28.0,147.4)" fill-rule="nonzero">
+<path d="M187.4 1602.4L1387.4 68.4L1212.6 -68.4L12.6 1465.6Z" fill="#111111"/>
+<path d="M1387.4 1465.6L187.4 -68.4L12.6 68.4L1212.6 1602.4Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>X</h3>
+  <p class="meta"><strong>Source:</strong> A + V</p>
+  <p class="meta"><strong>Ops:</strong> mirror / splice</p>
+  <p class="note">upper convergence plus lower convergence</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="Y">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08487,0,0,-0.08487,25.6,153.0)" fill-rule="nonzero">
+<path d="M187.4 1602.4L787.4 835.4L612.6 698.6L12.6 1465.6Z" fill="#111111"/>
+<path d="M1387.4 1465.6L787.4 698.6L612.6 835.4L1212.6 1602.4Z" fill="#111111"/>
+<path d="M589.0 0.0H811.0V879.0H589.0Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>Y</h3>
+  <p class="meta"><strong>Source:</strong> V + H</p>
+  <p class="meta"><strong>Ops:</strong> crop / splice</p>
+  <p class="note">upper fork plus lower stem</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="Q">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.07691,0,0,-0.07691,25.1,137.4)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M893.4 466.2L1463.4 -36.8L1316.6 -203.2L746.6 299.8Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>Q</h3>
+  <p class="meta"><strong>Source:</strong> O + V</p>
+  <p class="meta"><strong>Ops:</strong> splice</p>
+  <p class="note">O ring with a short descending tail</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="R">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08231,0,0,-0.08231,24.5,145.8)" fill-rule="nonzero">
+<path d="M734 -31Q427 -31 260.0 184.5Q93 400 93 798Q93 1166 260.0 1365.5Q427 1565 734 1565Q1062 1565 1219.0 1377.5Q1376 1190 1376 803V798Q1376 400 1209.5 184.5Q1043 -31 734 -31ZM734 168Q936 168 1045.0 326.5Q1154 485 1154 777Q1155 1076 1056.0 1208.5Q957 1341 734 1341Q533 1341 424.0 1194.5Q315 1048 315 777Q315 485 424.0 326.5Q533 168 734 168Z" fill="#111111"/>
+<path d="M362.0 -80.0H602.0V1614.0H362.0Z" fill="#ffffff"/>
+<path d="M90.0 -80.0H1310.0V555.0H90.0Z" fill="#ffffff"/>
+<path d="M100.0 0.0H322.0V1534.0H100.0Z" fill="#111111"/>
+<path d="M390.5 854.3L1368.5 87.3L1231.5 -87.3L253.5 679.7Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>R</h3>
+  <p class="meta"><strong>Source:</strong> O + H</p>
+  <p class="meta"><strong>Ops:</strong> crop / splice / rotate</p>
+  <p class="note">P logic plus a diagonal leg</p>
+</article>
+<article class="card derived">
+  <div class="glyphbox"><svg viewBox="0 0 170 170" width="170" height="170" aria-label="W">
+<rect x="0" y="0" width="170" height="170" rx="18" fill="#faf7f1" stroke="#d7d0c4"/>
+<g transform="matrix(0.08626,0,0,-0.08626,24.6,151.2)" fill-rule="nonzero">
+<path d="M208.9 1555.3L508.9 21.3L291.1 -21.3L-8.9 1512.7Z" fill="#111111"/>
+<path d="M291.1 21.3L591.1 1555.3L808.9 1512.7L508.9 -21.3Z" fill="#111111"/>
+<path d="M808.9 1555.3L1108.9 21.3L891.1 -21.3L591.1 1512.7Z" fill="#111111"/>
+<path d="M891.1 21.3L1191.1 1555.3L1408.9 1512.7L1108.9 -21.3Z" fill="#111111"/>
+</g>
+</svg></div>
+  <h3>W</h3>
+  <p class="meta"><strong>Source:</strong> V</p>
+  <p class="meta"><strong>Ops:</strong> mirror / repeat</p>
+  <p class="note">double V construction</p>
+</article>
+  </section>
+
+  <h2 class="section-title">Quick Summary</h2>
+  <section class="summary">
+    <section><h4>成立</h4><ul><li>C</li><li>D</li><li>E</li><li>F</li><li>G</li><li>L</li><li>P</li><li>Q</li><li>W</li></ul></section><section><h4>仍然牵强</h4><ul><li>I</li><li>U</li><li>X</li><li>Y</li></ul></section><section><h4>后续可能需要人工重画</h4><ul><li>R</li></ul></section>
+  </section>
+</main>
+</body>
+</html>

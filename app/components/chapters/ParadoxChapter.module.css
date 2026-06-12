@@ -1,0 +1,792 @@
+@font-face {
+  font-family: "AkzidenzGrotesk";
+  src: url("/fonts/AkzidenzGrotesk-Medium.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rorrim";
+  src: url("/fonts/rorrim-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+.paradoxChapter {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+  color: #111111;
+  pointer-events: auto;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter * {
+  cursor: none !important;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .devPanel,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .devPanel * {
+  cursor: auto !important;
+}
+
+.viewContainer {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: #ffffff;
+}
+
+.viewContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.fullview {
+  --portal-x: 50%;
+  --portal-y: 20.15%;
+  position: relative;
+  width: 100vw;
+  min-width: 100vw;
+  height: calc(100vw * var(--stage-height-ratio));
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.editing {
+  touch-action: none;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing * {
+  cursor: auto !important;
+}
+
+.sceneLayer {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--zoom-origin-x, var(--portal-x)) var(--zoom-origin-y, var(--portal-y));
+  backface-visibility: hidden;
+  contain: paint;
+}
+
+.zoomPreviousContentScene {
+  z-index: 2;
+  animation: paradoxPreviousContentZoom 3600ms cubic-bezier(0.72, 0, 0.2, 1) forwards;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.zoomPreviousShellScene {
+  z-index: 3;
+  animation: paradoxPreviousShellZoom 3600ms cubic-bezier(0.72, 0, 0.2, 1) forwards;
+  pointer-events: none;
+  visibility: hidden;
+  will-change: transform;
+}
+
+.zoomNextScene {
+  z-index: 1;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.bakedSceneImage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+@keyframes paradoxPreviousContentZoom {
+  0% {
+    transform: scale(1);
+    visibility: visible;
+  }
+
+  68% {
+    transform: scale(var(--zoom-scale, 4.5));
+    visibility: visible;
+  }
+
+  68.01%,
+  100% {
+    transform: scale(var(--zoom-scale, 4.5));
+    visibility: hidden;
+  }
+}
+
+@keyframes paradoxPreviousShellZoom {
+  0% {
+    transform: translateY(0) scale(1);
+    visibility: hidden;
+  }
+
+  68% {
+    transform: translateY(0) scale(var(--zoom-scale, 4.5));
+    visibility: hidden;
+  }
+
+  68.01% {
+    transform: translateY(0) scale(var(--zoom-scale, 4.5));
+    visibility: visible;
+  }
+
+  100% {
+    transform: translateY(-42vh) scale(calc(var(--zoom-scale, 4.5) * 2.2));
+    visibility: visible;
+  }
+}
+
+.interior {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: #ffffff;
+}
+
+.interior::before {
+  content: none;
+}
+
+.interior::after {
+  content: none;
+}
+
+.stageObject {
+  position: absolute;
+  display: block;
+  transform-origin: center;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+  contain: layout paint style;
+  contain-intrinsic-size: 220px 220px;
+}
+
+.stageObject img {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  transform: translate3d(0, 0, 0);
+}
+
+.reducedSceneImage {
+  image-rendering: pixelated;
+}
+
+.macbookCameraScreen {
+  position: absolute;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 1.5%;
+  background: #000000;
+  pointer-events: none;
+}
+
+.macbookCameraVideo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  transform: scaleX(-1);
+}
+
+.clockHands {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.clockHand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  display: block;
+  width: 0.83%;
+  height: 24.57%;
+  border-radius: 999px;
+  background: #000000;
+  transform: translateX(-50%) rotate(var(--clock-hand-angle, 0deg));
+  transform-origin: 50% 100%;
+}
+
+.clockHourHand {
+  width: 1.27%;
+  height: 18.06%;
+}
+
+.clockMinuteHand {
+  width: 0.98%;
+  height: 23.84%;
+}
+
+.clockSecondHand {
+  width: 0.58%;
+  height: 28.9%;
+  background: #ff4324;
+}
+
+.clockCenterDot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.81%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #000000;
+  transform: translate(-50%, -50%);
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editableObject {
+  cursor: auto !important;
+  pointer-events: auto;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing .editableObject {
+  pointer-events: auto !important;
+}
+
+.editOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 105;
+  pointer-events: none;
+}
+
+.recursiveObject {
+  pointer-events: none;
+}
+
+.lightweightObject {
+  pointer-events: none !important;
+  contain: layout paint style;
+}
+
+.liveMediaObject {
+  content-visibility: visible;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .fleeObject {
+  cursor: none !important;
+  pointer-events: auto;
+  will-change: left, top, transform;
+  transition:
+    left 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing .fleeObject {
+  pointer-events: none !important;
+}
+
+.finalUploadedScene {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.finalUploadedSceneActive {
+  animation: paradoxFinalBackgroundEvacuate 4200ms cubic-bezier(0.72, 0, 0.18, 1) 280ms forwards;
+}
+
+.finalStaticScene {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  pointer-events: none;
+}
+
+@keyframes paradoxFinalBackgroundEvacuate {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  70% {
+    transform: translate3d(0, 112vh, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 144vh, 0);
+  }
+}
+
+.finalTextLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 62;
+  pointer-events: none;
+}
+
+.finalTextGlyph {
+  position: absolute;
+  display: block;
+  font-family: "Rorrim", "AkzidenzGrotesk", "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(72px, var(--final-glyph-size, 10vw), 218px);
+  line-height: 0.82;
+  color: #000000;
+  pointer-events: auto;
+  user-select: none;
+  touch-action: none;
+  transform: translate(-50%, -50%) rotate(var(--final-glyph-rotation, 0deg));
+  animation: paradoxFinalGlyphFall 1550ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--final-glyph-delay, 0ms);
+  transition:
+    left 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: left, top, transform;
+}
+
+@keyframes paradoxFinalGlyphFall {
+  0% {
+    transform: translate(-50%, calc(-50% - 105vh)) rotate(calc(var(--final-glyph-rotation, 0deg) - 24deg));
+  }
+
+  72% {
+    transform: translate(-50%, -50%) rotate(var(--final-glyph-rotation, 0deg));
+  }
+
+  84% {
+    transform: translate(-50%, calc(-50% - 2.2vh)) rotate(var(--final-glyph-rotation, 0deg));
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--final-glyph-rotation, 0deg));
+  }
+}
+
+.outsideMirrorClip {
+  position: absolute;
+  z-index: 24;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.outsideMirrorClipContent {
+  position: absolute;
+  overflow: visible;
+}
+
+.selectedObject {
+  outline: 1px solid rgba(255, 68, 32, 0.95);
+  outline-offset: 5px;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing .selectedObject {
+  z-index: 95 !important;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .resizeHandle,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .rotateHandle {
+  position: absolute;
+  z-index: 5;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255, 68, 32, 0.95);
+  border-radius: 50%;
+  background: rgba(6, 6, 6, 0.82);
+  cursor: auto !important;
+}
+
+.resizeHandle {
+  right: -26px;
+  bottom: -26px;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .rotateHandle {
+  left: 50%;
+  top: -38px;
+  transform: translateX(-50%);
+  cursor: auto !important;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .portal,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .recursivePortal {
+  position: absolute;
+  left: var(--portal-x);
+  top: var(--portal-y);
+  aspect-ratio: 806 / 1125;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  z-index: 30;
+  pointer-events: auto;
+  cursor: none !important;
+}
+
+.recursivePortal {
+  z-index: 32;
+}
+
+.mirrorInterior {
+  position: absolute;
+  left: 3.7%;
+  top: 3.1%;
+  z-index: 1;
+  width: 92.6%;
+  height: 93.4%;
+  overflow: hidden;
+  border-radius: 1.2%;
+  background: #ffffff;
+}
+
+.recursiveScene {
+  position: absolute;
+  overflow: visible;
+  transform-origin: var(--portal-x) var(--portal-y);
+  background: #ffffff;
+}
+
+.recursiveScene::before {
+  content: none;
+}
+
+.defaultMirrorFrame {
+  position: relative;
+  z-index: 4;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .zoomloop {
+  position: absolute;
+  left: var(--portal-x);
+  top: var(--portal-y);
+  z-index: 70;
+  width: clamp(340px, 32.4vw, 680px);
+  aspect-ratio: 806 / 1125;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: none !important;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing .portal,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing .recursivePortal,
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .editing .zoomloop {
+  pointer-events: none !important;
+}
+
+.devPanel {
+  position: fixed;
+  left: var(--dev-panel-x, calc(100vw - 438px));
+  top: var(--dev-panel-y, 18px);
+  z-index: 120;
+  display: grid;
+  grid-template-rows: auto auto minmax(120px, 0.9fr) minmax(120px, 1fr) auto;
+  gap: 14px;
+  width: min(420px, calc(100vw - 36px));
+  max-height: calc(100vh - var(--dev-panel-y, 18px) - 10px);
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(242, 242, 230, 0.22);
+  background: rgba(8, 8, 8, 0.86);
+  color: #f4f1e8;
+  font-family: "AkzidenzGrotesk", "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.25;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+  cursor: auto !important;
+}
+
+.paradoxCursor {
+  --paradox-cursor-size: min(54.6875vw, 97.2222vh);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 130;
+  width: var(--paradox-cursor-size);
+  height: var(--paradox-cursor-size);
+  pointer-events: none;
+  transform: translate3d(
+    calc(var(--paradox-cursor-x) - var(--paradox-cursor-hotspot-x) * var(--paradox-cursor-size)),
+    calc(var(--paradox-cursor-y) - var(--paradox-cursor-hotspot-y) * var(--paradox-cursor-size)),
+    0
+  );
+  transform-origin: 0 0;
+  background-image: url("/cursors/macos-arrow.png");
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: contain;
+  image-rendering: auto;
+}
+
+.devHeader,
+.devFooter,
+.buttonRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.devHeader {
+  cursor: auto !important;
+  user-select: none;
+}
+
+.devHeader:active {
+  cursor: auto !important;
+}
+
+.devHeader p,
+.devHeader span,
+.devFooter p,
+.emptySelected,
+.selectedPanel h2 {
+  margin: 0;
+}
+
+.devHeader p,
+.selectedPanel h2 {
+  color: #ff4324;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.devHeader span,
+.devFooter p,
+.uploadRow span {
+  display: block;
+  color: rgba(244, 241, 232, 0.58);
+  font-size: 11px;
+}
+
+.uploadGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.uploadRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(244, 241, 232, 0.12);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.uploadRow strong {
+  display: block;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploadRow input,
+.devFooter input {
+  display: none;
+}
+
+.selectedPanel {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.libraryPanel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.libraryPanel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.libraryPanel h2,
+.libraryPanel p {
+  margin: 0;
+}
+
+.libraryPanel h2 {
+  color: #ff4324;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.libraryPanel p {
+  color: rgba(244, 241, 232, 0.58);
+  font-size: 11px;
+}
+
+.libraryGrid {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.libraryItem {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid rgba(244, 241, 232, 0.12);
+  background: rgba(255, 255, 255, 0.045);
+  cursor: pointer !important;
+}
+
+.libraryItem:hover {
+  border-color: rgba(255, 67, 36, 0.5);
+}
+
+.selectedLibraryItem {
+  border-color: rgba(255, 67, 36, 0.95);
+  background: rgba(255, 67, 36, 0.12);
+}
+
+.libraryThumb {
+  width: 52px;
+  height: 42px;
+  min-height: 42px !important;
+  padding: 0;
+  overflow: hidden;
+}
+
+.libraryThumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.libraryItem strong,
+.libraryItem span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.libraryItem strong {
+  color: #f4f1e8;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.libraryItem span {
+  color: rgba(244, 241, 232, 0.54);
+  font-size: 10px;
+}
+
+.selectedPanel label {
+  display: grid;
+  gap: 5px;
+  color: rgba(244, 241, 232, 0.64);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.selectedPanel input,
+.selectedPanel select {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 241, 232, 0.18);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.46);
+  color: #f4f1e8;
+  font: inherit;
+}
+
+.selectedPanel input[type="range"] {
+  height: 22px;
+}
+
+.controlGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter.paradoxChapter .devPanel button {
+  min-height: 30px;
+  border: 1px solid rgba(244, 241, 232, 0.24);
+  border-radius: 0;
+  background: rgba(244, 241, 232, 0.08);
+  color: #f4f1e8;
+  font: inherit;
+  cursor: pointer !important;
+}
+
+.devPanel button:hover {
+  border-color: rgba(255, 67, 36, 0.8);
+  color: #ff4324;
+}
+
+.devFooter {
+  flex-wrap: wrap;
+}
+
+.devFooter p {
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .fullview {
+    width: 160vw;
+    height: calc(160vw * var(--stage-height-ratio));
+  }
+
+  .viewContainer {
+    overflow-x: auto;
+  }
+
+  .devPanel {
+    left: var(--dev-panel-x, 10px);
+    top: var(--dev-panel-y, 10px);
+    max-height: 72vh;
+    width: auto;
+  }
+}

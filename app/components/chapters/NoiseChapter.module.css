@@ -1,0 +1,18 @@
+.noiseChapter {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  background: transparent;
+  color: #111111;
+  cursor: crosshair;
+  pointer-events: none;
+}
+
+.noiseCanvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
