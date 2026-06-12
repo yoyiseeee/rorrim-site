@@ -1,0 +1,7 @@
+1:"$Sreact.fragment"
+2:I[561250,["/rorrim-site/_next/static/chunks/58fcf86470d1ed41.js"],"default"]
+3:I[897367,["/rorrim-site/_next/static/chunks/452a3479b1b93bbe.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+:HL["/rorrim-site/_next/static/chunks/cc35dc9228743e2a.css","style"]
+0:{"buildId":"OVfyNMVY8sn1rdwC802ji","rsc":["$","$1","c",{"children":[["$","$L2",null,{}],[["$","link","0",{"rel":"stylesheet","href":"/rorrim-site/_next/static/chunks/cc35dc9228743e2a.css","precedence":"next"}],["$","script","script-0",{"src":"/rorrim-site/_next/static/chunks/58fcf86470d1ed41.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
+5:null
