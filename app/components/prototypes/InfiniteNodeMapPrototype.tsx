@@ -84,6 +84,7 @@ import {
   noclippingMirrorProductCrops,
   type NoclippingMirrorProductCrop,
 } from './noclippingMirrorProductCrops';
+import { assetPath } from '../../utils/assetPath';
 
 const DEFAULT_VIEWPORT = {
   width: 1440,
@@ -126,13 +127,13 @@ const CHAPTER_PORTAL_FADE_IN_MS = 1400;
 const CHAPTER_PORTAL_FADE_OUT_MS = 1600;
 const CHAPTER_PORTAL_UNMOUNT_BUFFER_MS = 120;
 const EXTRA_INTRO_FOCUS_CHAPTERS = ['dimension', 'paradox', 'noise'] as const satisfies readonly ChapterId[];
-const NOISE_AUDIO_SRC = '/audio/ikea-exit-music.m4a';
+const NOISE_AUDIO_SRC = assetPath('/audio/ikea-exit-music.m4a');
 const NOISE_AUDIO_TIME_KEY = 'mirror-site:infinite-node-map:noiseAudioTime';
 const PLAY_IDLE_CLOCK_DELAY_MS = 10000;
 const PLAY_PATCH_DEPTH = 1;
 const CHAOS_TRIGGER_PROBABILITY = 0.02;
 const chapterRoutes: Partial<Record<ChapterId, string>> = {
-  alphabet: '/alphabet/Mirror%20Alphabet.html',
+  alphabet: assetPath('/alphabet/Mirror%20Alphabet.html'),
 };
 
 type NodeStore = Record<string, ExplorationNodeRecord>;
@@ -370,7 +371,7 @@ const NOCLIP_EXPLOSION_MAX_PARTICLES = 6800;
 const NOCLIP_EXPLOSION_SPAWN_BASE = 180;
 const NOCLIP_EXPLOSION_COMBO_WINDOW_MS = 5200;
 const NOCLIP_EXPLOSION_FRAGMENT_SRCS = Array.from({ length: NOCLIP_EXPLOSION_IMAGE_COUNT }, (_, index) => (
-  `/noise-prebaked/fragments/noise-fragment-${String(index + 1).padStart(4, '0')}.png`
+  assetPath(`/noise-prebaked/fragments/noise-fragment-${String(index + 1).padStart(4, '0')}.png`)
 ));
 const DIMENSION_WAVE_ANALYSIS_WIDTH = 96;
 const DIMENSION_WAVE_ANALYSIS_HEIGHT = 72;
@@ -386,14 +387,14 @@ const DIMENSION_MAX_EXTRACTED_OBJECTS = 40;
 const DIMENSION_REVEAL_RAMP_IN_MS = 780;
 const DIMENSION_REVEAL_HOLD_MS = 1000;
 const DIMENSION_REVEAL_RAMP_OUT_MS = 1150;
-const NOCLIP_AUDIO_SRC = noclippingBackgroundMusicSrc;
+const NOCLIP_AUDIO_SRC = assetPath(noclippingBackgroundMusicSrc);
 const NOCLIP_PRELOAD_IMAGE_SRCS = Array.from(new Set([
-  ...NOCLIP_SPACES.flatMap((space) => space.axes.map((axis) => axis.src)),
-  ...Object.values(NOCLIP_CUTOUTS).map((cutout) => cutout.src),
-  ...noclippingMirrorProductCrops.map((crop) => crop.src),
+  ...NOCLIP_SPACES.flatMap((space) => space.axes.map((axis) => assetPath(axis.src))),
+  ...Object.values(NOCLIP_CUTOUTS).map((cutout) => assetPath(cutout.src)),
+  ...noclippingMirrorProductCrops.map((crop) => assetPath(crop.src)),
 ]));
-const NOCLIP_PRELOAD_VIDEO_SRCS = noclippingCatalogueVideos.slice(0, 2).map((video) => video.src);
-const CHAPTER_IMAGE_SRCS = CHAPTERS.map((chapter) => chapter.src);
+const NOCLIP_PRELOAD_VIDEO_SRCS = noclippingCatalogueVideos.slice(0, 2).map((video) => assetPath(video.src));
+const CHAPTER_IMAGE_SRCS = CHAPTERS.map((chapter) => assetPath(chapter.src));
 type ImageLoadStatus = 'loading' | 'loaded' | 'failed';
 const chapterImageStatusCache = new Map<string, ImageLoadStatus>();
 const chapterImagePromiseCache = new Map<string, Promise<ImageLoadStatus>>();
@@ -438,7 +439,8 @@ const noclipAudioDurationCache = new Map<string, Promise<number | null>>();
 
 const resolveAudioDurationMs = (src?: string, playbackRate = 1): Promise<number | null> => {
   if (!src || typeof window === 'undefined') return Promise.resolve(null);
-  const cacheKey = `${src}@${playbackRate}`;
+  const resolvedSrc = assetPath(src);
+  const cacheKey = `${resolvedSrc}@${playbackRate}`;
   const cached = noclipAudioDurationCache.get(cacheKey);
   if (cached) return cached;
 
@@ -465,7 +467,7 @@ const resolveAudioDurationMs = (src?: string, playbackRate = 1): Promise<number 
       window.clearTimeout(timeout);
       finish(null);
     }, { once: true });
-    audio.src = src;
+    audio.src = resolvedSrc;
   });
 
   noclipAudioDurationCache.set(cacheKey, durationPromise);
@@ -2269,7 +2271,7 @@ function MountedInfiniteNodeMapPrototype() {
     });
     preloadDodecahedronImages([
       ...CHAPTER_IMAGE_SRCS,
-      ...Object.values(d12ChapterNumberAssets).map((asset) => asset.src),
+      ...Object.values(d12ChapterNumberAssets).map((asset) => assetPath(asset.src)),
     ]);
     preloadNoiseEruptionImages();
   }, []);
@@ -5787,7 +5789,7 @@ function MapNode({
       {!previewOnly && !showIntroMirror && !showDimensionMirror && settings.showMirror && (
         <img
           className={styles.mirror}
-          src="/Mirror.png"
+          src={assetPath('/Mirror.png')}
           alt=""
           draggable={false}
           style={{ opacity: mirrorOpacity }}
@@ -5867,7 +5869,7 @@ function IntroMirror({
       )}
       <img
         className={styles.introMirrorImage}
-        src={cameraStarted ? '/Mirror-frame.png' : '/Mirror.png'}
+        src={assetPath(cameraStarted ? '/Mirror-frame.png' : '/Mirror.png')}
         alt=""
         draggable={false}
       />
@@ -5930,7 +5932,7 @@ function DimensionMirror({
       <video ref={videoRef} className={styles.dimensionHiddenVideo} autoPlay playsInline muted />
       <img
         className={styles.introMirrorImage}
-        src="/Mirror-frame.png"
+        src={assetPath('/Mirror-frame.png')}
         alt=""
         draggable={false}
       />
@@ -6281,8 +6283,9 @@ function NoclippingExperience({
 
     playable.forEach(({ audio, src }) => {
       if (!audio || !src) return;
-      if (audio.src !== window.location.origin + src) {
-        audio.src = src;
+      const resolvedSrc = assetPath(src);
+      if (audio.src !== new URL(resolvedSrc, window.location.origin).href) {
+        audio.src = resolvedSrc;
       }
       audio.playbackRate = audio === adAnnouncementAudioRef.current ? cue.playbackRate : 1;
       audio.currentTime = 0;
@@ -7129,7 +7132,7 @@ function NoclippingExperience({
               style={{ zIndex: 1 + (index % 9) }}
             >
               <img
-                src={primaryAxis.src}
+                src={assetPath(primaryAxis.src)}
                 alt=""
                 className={styles.noclippingImage}
                 style={{
@@ -7141,7 +7144,7 @@ function NoclippingExperience({
                 }}
               />
               <img
-                src={secondaryAxis.src}
+                src={assetPath(secondaryAxis.src)}
                 alt=""
                 className={styles.noclippingImage}
                 style={{
@@ -7153,7 +7156,7 @@ function NoclippingExperience({
                 }}
               />
               <img
-                src={tertiaryAxis.src}
+                src={assetPath(tertiaryAxis.src)}
                 alt=""
                 className={styles.noclippingImage}
                 style={{
@@ -7167,7 +7170,7 @@ function NoclippingExperience({
               />
               {showMirrorProduct && mirrorProduct && (
                 <img
-                  src={mirrorProduct.src}
+                  src={assetPath(mirrorProduct.src)}
                   alt=""
                   className={styles.noclippingMirrorProduct}
                   style={{
@@ -7206,7 +7209,7 @@ function NoclippingExperience({
               </div>
               {cutout && (
                 <img
-                  src={cutout.src}
+                  src={assetPath(cutout.src)}
                   alt=""
                   className={styles.noclippingCutout}
                   style={{
@@ -7219,7 +7222,7 @@ function NoclippingExperience({
               )}
               {secondCutout && seededRandom(seed + 24) > 0.38 && (
                 <img
-                  src={secondCutout.src}
+                  src={assetPath(secondCutout.src)}
                   alt=""
                   className={styles.noclippingCutout}
                   style={{
@@ -7285,7 +7288,7 @@ function NoclippingExperience({
                   key={`${adState.runId}-${currentAdVideo.id}`}
                   ref={adVideoRef}
                   className={styles.noclippingAdVideo}
-                  src={currentAdVideo.src}
+                  src={assetPath(currentAdVideo.src)}
                   playsInline
                   muted
                   loop
@@ -7318,7 +7321,7 @@ function NoclippingExperience({
                       <img
                         key={`${adState.runId}-${image.id}`}
                         className={styles.noclippingAdImageSlice}
-                        src={image.src}
+                        src={assetPath(image.src)}
                         alt=""
                         style={{
                           '--noclip-image-delay': `${cycleOffsetMs}ms`,
@@ -7684,25 +7687,26 @@ function ChapterImage({
   src: string;
   label: string;
 }) {
-  const [status, setStatus] = useState<ImageLoadStatus>(() => chapterImageStatusCache.get(src) ?? 'loading');
+  const resolvedSrc = assetPath(src);
+  const [status, setStatus] = useState<ImageLoadStatus>(() => chapterImageStatusCache.get(resolvedSrc) ?? 'loading');
 
   useEffect(() => {
     let cancelled = false;
-    setStatus(chapterImageStatusCache.get(src) ?? 'loading');
-    preloadChapterImage(src).then((nextStatus) => {
+    setStatus(chapterImageStatusCache.get(resolvedSrc) ?? 'loading');
+    preloadChapterImage(resolvedSrc).then((nextStatus) => {
       if (!cancelled) setStatus(nextStatus);
     });
     return () => {
       cancelled = true;
     };
-  }, [src]);
+  }, [resolvedSrc]);
 
   if (status === 'failed') {
     return (
       <span className={styles.fallback}>
         {label}
         <br />
-        {src}
+        {resolvedSrc}
       </span>
     );
   }
@@ -7711,17 +7715,17 @@ function ChapterImage({
     <>
       <img
         className={`${styles.chapterImage}${status === 'loading' ? ` ${styles.imageLoading}` : ''}`}
-        src={src}
+        src={resolvedSrc}
         alt={label}
         draggable={false}
         onLoad={(event) => {
           const image = event.currentTarget;
           const nextStatus: ImageLoadStatus = image.naturalWidth > 0 && image.naturalHeight > 0 ? 'loaded' : 'failed';
-          chapterImageStatusCache.set(src, nextStatus);
+          chapterImageStatusCache.set(resolvedSrc, nextStatus);
           setStatus(nextStatus);
         }}
         onError={() => {
-          chapterImageStatusCache.set(src, 'failed');
+          chapterImageStatusCache.set(resolvedSrc, 'failed');
           setStatus('failed');
         }}
       />

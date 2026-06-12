@@ -8,6 +8,7 @@ import { d12ChapterNumberAssets } from './d12ChapterNumberAssets';
 import { DODECAHEDRON_EDGE_CHAPTERS, DODECAHEDRON_FACES } from './dodecahedronTopology';
 import { CHAPTERS } from './infiniteNodeMapModel';
 import type { ChapterConfig, ChapterId, NodeDirection } from './infiniteNodeMapModel';
+import { assetPath } from '../../utils/assetPath';
 
 const D12_SIZE = {
   width: 190,
@@ -73,7 +74,7 @@ type EdgeSlot = {
 
 export function preloadDodecahedronImages(srcs: string[]) {
   srcs.forEach((src) => {
-    loadImage(src);
+    loadImage(assetPath(src));
   });
 }
 
@@ -123,8 +124,8 @@ export default function DodecahedronNavigator({
       visualMode,
       ...ORDERED_DIRECTIONS.map((direction) => (
         visualMode === 'numbers'
-          ? d12ChapterNumberAssets[chaptersByDirection[direction].id].src
-          : chaptersByDirection[direction].src
+          ? assetPath(d12ChapterNumberAssets[chaptersByDirection[direction].id].src)
+          : assetPath(chaptersByDirection[direction].src)
       )),
     ].join('|')
   ), [chaptersByDirection, visualMode]);
@@ -345,8 +346,8 @@ async function loadChapterImages(
     DODECAHEDRON_EDGE_CHAPTERS.map(async (chapterId) => {
       const chapter = CHAPTERS.find((item) => item.id === chapterId) ?? CHAPTERS[0];
       const src = visualMode === 'numbers'
-        ? d12ChapterNumberAssets[chapterId].src
-        : chapter.src;
+        ? assetPath(d12ChapterNumberAssets[chapterId].src)
+        : assetPath(chapter.src);
       const image = await loadImage(src);
       return [chapterId, image] as const;
     }),

@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './NoiseChapter.module.css';
+import { assetPath } from '../../utils/assetPath';
 
-const NOISE_AUDIO_SRC = '/audio/ikea-exit-music.m4a';
-const NOISE_ATLAS_SRC = '/noise-prebaked/atlas/noise-fragments-atlas.webp';
-const NOISE_ATLAS_METADATA_SRC = '/noise-prebaked/atlas/noise-fragments-atlas.json';
+const NOISE_AUDIO_SRC = assetPath('/audio/ikea-exit-music.m4a');
+const NOISE_ATLAS_SRC = assetPath('/noise-prebaked/atlas/noise-fragments-atlas.webp');
+const NOISE_ATLAS_METADATA_SRC = assetPath('/noise-prebaked/atlas/noise-fragments-atlas.json');
 const NOISE_SEED = 20260528;
 const POINT_DWELL_MS = 5200;
 const BURST_DURATION_MS = POINT_DWELL_MS * 6;
@@ -134,7 +135,7 @@ const noiseImagePoolFragments: NoiseTopologyFragment[] = Array.from({ length: PR
   const number = String(index + 1).padStart(4, '0');
   return {
     id: `noise-prebaked-${number}`,
-    src: `/noise-prebaked/fragments/noise-fragment-${number}.png`,
+    src: assetPath(`/noise-prebaked/fragments/noise-fragment-${number}.png`),
     room: 'prebaked',
     fileName: `noise-fragment-${number}.png`,
   };

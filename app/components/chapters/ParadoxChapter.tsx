@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react';
 import styles from './ParadoxChapter.module.css';
+import { assetPath } from '../../utils/assetPath';
 
 const MIRROR_WIDTH = 806;
 const MIRROR_HEIGHT = 1125;
@@ -29,7 +30,7 @@ const PARADOX_CURSOR_HOTSPOT = { x: 80 / 256, y: 38 / 256 };
 const FLEE_COOLDOWN_MS = 700;
 const STORAGE_KEY = 'mirror-site:paradox-layer-layout:v1';
 const DEV_PANEL_POSITION_KEY = 'mirror-site:paradox-dev-panel-position:v1';
-const BAKED_LAYOUT_URL = '/paradox-assets/layout.json';
+const BAKED_LAYOUT_URL = assetPath('/paradox-assets/layout.json');
 const PREFERRED_CAMERA_DEVICE_ID_KEY = 'mirror.preferredCameraDeviceId.v1';
 const PREFERRED_CAMERA_LABEL_KEY = 'mirror.preferredCameraLabel.v1';
 const DB_NAME = 'mirror-site-paradox-assets';
@@ -249,8 +250,11 @@ function objectToPersisted(item: ParadoxPlacedImage): PersistedPlacedImage {
     zIndex: item.zIndex,
   };
 
+  const bakedAssetsRoot = assetPath('/paradox-assets/');
   if (item.src.startsWith('/paradox-assets/')) {
     persisted.src = item.src;
+  } else if (item.src.startsWith(bakedAssetsRoot)) {
+    persisted.src = item.src.replace(bakedAssetsRoot, '/paradox-assets/');
   }
 
   return persisted;
@@ -356,7 +360,7 @@ function getImageDimensions(src: string) {
     const image = new Image();
     image.onload = () => resolve({ width: image.naturalWidth || 1, height: image.naturalHeight || 1 });
     image.onerror = () => resolve({ width: 1, height: 1 });
-    image.src = src;
+    image.src = assetPath(src);
   });
 }
 
@@ -438,12 +442,13 @@ function decodeImageSource(src: string) {
       image.decode?.().then(() => resolve()).catch(() => resolve());
     };
     image.onerror = () => resolve();
-    image.src = src;
+    image.src = assetPath(src);
   });
 }
 
 function loadCanvasImage(src: string) {
-  const cached = canvasImageCache.get(src);
+  const resolvedSrc = assetPath(src);
+  const cached = canvasImageCache.get(resolvedSrc);
   if (cached) return cached;
 
   const request = new Promise<HTMLImageElement>((resolve, reject) => {
@@ -452,10 +457,10 @@ function loadCanvasImage(src: string) {
     image.onload = () => {
       image.decode?.().then(() => resolve(image)).catch(() => resolve(image));
     };
-    image.onerror = () => reject(new Error(`Unable to load image ${src}`));
-    image.src = src;
+    image.onerror = () => reject(new Error(`Unable to load image ${resolvedSrc}`));
+    image.src = resolvedSrc;
   });
-  canvasImageCache.set(src, request);
+  canvasImageCache.set(resolvedSrc, request);
   return request;
 }
 
@@ -484,8 +489,8 @@ function revokeZoomSnapshots(snapshots: ZoomSnapshotSet | null) {
 
 async function warmParadoxSceneAssets(objects: ParadoxPlacedImage[]) {
   const sources = Array.from(new Set([
-    '/Mirror-frame.png',
-    ...objects.map((item) => item.src).filter(Boolean),
+    assetPath('/Mirror-frame.png'),
+    ...objects.map((item) => assetPath(item.src)).filter(Boolean),
   ]));
 
   await Promise.allSettled(sources.map((src) => decodeImageSource(src)));
@@ -628,7 +633,7 @@ async function drawPlacedImageToCanvas(
   cameraVideo?: HTMLVideoElement | null,
   showLiveEffects = true,
 ) {
-  const image = await loadCanvasImage(item.src).catch(() => null);
+  const image = await loadCanvasImage(assetPath(item.src)).catch(() => null);
   if (!image) return;
 
   const centerX = (item.x / 100) * stageWidth;
@@ -671,7 +676,7 @@ async function drawMirrorFrameToCanvas(
   width: number,
   height: number,
 ) {
-  const frame = await loadCanvasImage('/Mirror-frame.png').catch(() => null);
+  const frame = await loadCanvasImage(assetPath('/Mirror-frame.png')).catch(() => null);
   if (!frame) return;
   ctx.drawImage(frame, left, top, width, height);
 }
@@ -2067,7 +2072,7 @@ export default function ParadoxChapter({ onBack }: ParadoxChapterProps) {
           {showLiveEffects && isMacBookObject(item) && renderMacBookCameraScreen()}
           <img
             className={reduceImageClarity ? styles.reducedSceneImage : undefined}
-            src={item.src}
+            src={assetPath(item.src)}
             alt=""
             draggable={false}
             decoding="async"
@@ -2151,7 +2156,7 @@ export default function ParadoxChapter({ onBack }: ParadoxChapterProps) {
           </div>
         )}
         {showFrame && (
-          <img className={styles.defaultMirrorFrame} src="/Mirror-frame.png" alt="" draggable={false} />
+          <img className={styles.defaultMirrorFrame} src={assetPath('/Mirror-frame.png')} alt="" draggable={false} />
         )}
       </div>
     );
@@ -2513,7 +2518,7 @@ export default function ParadoxChapter({ onBack }: ParadoxChapterProps) {
                       }}
                       aria-label={linkedObject ? `选中 ${linkedObject.name}` : '未保存图片'}
                     >
-                      <img src={record.src} alt="" draggable={false} />
+                      <img src={assetPath(record.src)} alt="" draggable={false} />
                     </button>
                     <div>
                       <strong>{linkedObject?.name ?? '未保存图片'}</strong>
