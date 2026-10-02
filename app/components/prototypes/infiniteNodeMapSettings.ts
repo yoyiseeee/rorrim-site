@@ -135,7 +135,7 @@ export type PrototypeSettings = {
   noclipImageSpeedVariance: number;
 };
 
-export const SETTINGS_STORAGE_KEY = 'mirror-site:infinite-node-map:settings:v1';
+export const SETTINGS_STORAGE_KEY = 'mirror-site:infinite-node-map:settings:v2';
 
 const LEGACY_CURSOR_MAX_SIZE = 420;
 const GRID_CURSOR_MAX_SIZE = 1050;

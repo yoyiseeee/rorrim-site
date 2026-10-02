@@ -35,6 +35,8 @@
 /public/noclipping/ikea-mirror-catalogue/
 
 # debug
+.logs/
+/scripts/*.plist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -120,6 +120,7 @@ const INTRO_MIRROR_AXIS_OFFSET_Y = 30;
 const INTRO_SCROLL_SPEED = 0.85;
 const INTRO_SCROLL_EXTRA_Y = 800;
 const INTRO_CHAPTER_SCALE = 1.75;
+const INTRO_RESTORED_VISUAL_SCALE = 1.58;
 const INTRO_ALPHABET_DWELL_MS = 300;
 const INTRO_ALPHABET_PREVIEW_PROGRESS = 0.74;
 const INTRO_ALPHABET_PROGRESS_EASE = 0.075;
@@ -555,7 +556,7 @@ function MountedInfiniteNodeMapPrototype() {
     size: DEFAULT_PROTOTYPE_SETTINGS.cursorMinSize,
   });
   const [customCursorInDevPanel, setCustomCursorInDevPanel] = useState(false);
-  const [mirrorOpened, setMirrorOpened] = useState(false);
+  const [mirrorOpened, setMirrorOpened] = useState(true);
   const [cameraStarted, setCameraStarted] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [playCameraState, setPlayCameraState] = useState<CameraState>('idle');
@@ -2614,6 +2615,7 @@ function MountedInfiniteNodeMapPrototype() {
       settings.globalScale *
       settings.chapterScale *
       INTRO_CHAPTER_SCALE *
+      INTRO_RESTORED_VISUAL_SCALE *
       displayScale;
     const chapterHeight = chapterWidth * getImageAspect('alphabet');
     const bigRadius = Math.max(72, Math.min(chapterWidth, chapterHeight) * 0.32);
@@ -2720,6 +2722,7 @@ function MountedInfiniteNodeMapPrototype() {
       settings.globalScale *
       settings.chapterScale *
       INTRO_CHAPTER_SCALE *
+      INTRO_RESTORED_VISUAL_SCALE *
       displayScale;
     const chapterHeight = chapterWidth * getImageAspect('noclipping');
     const bigRadius = Math.max(72, Math.min(chapterWidth, chapterHeight) * 0.32);
@@ -2827,6 +2830,7 @@ function MountedInfiniteNodeMapPrototype() {
       settings.globalScale *
       settings.chapterScale *
       INTRO_CHAPTER_SCALE *
+      INTRO_RESTORED_VISUAL_SCALE *
       displayScale;
     const chapterHeight = chapterWidth * getImageAspect(chapter);
     const bigRadius = Math.max(72, Math.min(chapterWidth, chapterHeight) * 0.32);
@@ -7620,7 +7624,8 @@ function ChapterGate({
   onHoverChapter: (chapter: ChapterId | null) => void;
   sequenceIndex: number;
 }) {
-  const width = CHAPTER_VISUAL_WIDTH[chapter.id] * NODE_LAYOUT.titleScale * settings.globalScale * settings.chapterScale * INTRO_CHAPTER_SCALE;
+  const introRestoreScale = intro ? INTRO_RESTORED_VISUAL_SCALE : 1;
+  const width = CHAPTER_VISUAL_WIDTH[chapter.id] * NODE_LAYOUT.titleScale * settings.globalScale * settings.chapterScale * INTRO_CHAPTER_SCALE * introRestoreScale;
   const aspect = getImageAspect(chapter.id);
   const height = width * aspect;
   const manifesto = getChapterManifestoText(chapter.id, settings);

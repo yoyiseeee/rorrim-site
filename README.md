@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rorrim Site
 
-## Getting Started
+An interactive mirror-themed web experience built with Next.js, React, Framer Motion, and Three.js.
 
-First, run the development server:
+Live site: <https://yoyiseeee.github.io/rorrim-site/>
+
+## Local development
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+NEXT_PUBLIC_BASE_PATH=/rorrim-site npm run build
+npm run pages:prepare -- out
+```
 
-## Learn More
+The repository deploys automatically to GitHub Pages after a push to `main`. The deployment workflow exports the Next.js app, prefixes root-relative CSS assets with `/rorrim-site`, verifies that referenced fonts and cursor assets exist, and publishes a fresh `gh-pages` branch.
 
-To learn more about Next.js, take a look at the following resources:
+Large source datasets used to generate some experiments are intentionally excluded from Git. The public build uses the checked-in, pre-baked web assets so that it remains deployable on GitHub Pages.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The source code is available under the [MIT License](LICENSE). Fonts, audio, video, images, and other media assets are not covered by that license; see [ASSETS_LICENSE.md](ASSETS_LICENSE.md).

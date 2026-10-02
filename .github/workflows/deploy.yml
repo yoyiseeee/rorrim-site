@@ -16,6 +16,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       NEXT_PUBLIC_BASE_PATH: /rorrim-site
     steps:
@@ -34,10 +35,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Fix exported CSS asset paths
-        run: |
-          perl -pi -e 's#url\(/fonts/#url(/rorrim-site/fonts/#g; s#url\(/alphabet/fonts/#url(/rorrim-site/alphabet/fonts/#g; s#url\(/cursors/#url(/rorrim-site/cursors/#g' out/_next/static/chunks/*.css
-
       - name: Prepare slim Pages bundle
         run: |
           rm -rf /tmp/rorrim-site-pages
@@ -51,6 +48,15 @@ jobs:
             --exclude '/noclipping/axis-demo/**/*.png' \
             out/ /tmp/rorrim-site-pages/
           touch /tmp/rorrim-site-pages/.nojekyll
+
+      - name: Normalize and verify Pages asset paths
+        run: npm run pages:prepare -- /tmp/rorrim-site-pages
+
+      - name: Enforce Pages bundle size limit
+        run: |
+          size_mb=$(du -sm /tmp/rorrim-site-pages | cut -f1)
+          echo "Pages bundle: ${size_mb} MB"
+          test "$size_mb" -lt 950
 
       - name: Publish gh-pages branch
         env:
