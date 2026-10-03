@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Typography Engine v2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0c;--panel:#141414;--panel2:#1a1a1a;--border:#252525;--border2:#1e1e1e;
+  --text:#e8e4dc;--text-dim:#5a5650;--text-mid:#8a8580;
+  --red:#e03030;--mono:'DM Mono',monospace;
+  --input-bg:#111;--input-border:#2a2a2a;--thumb:#333;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:11px;line-height:1.5;height:100%}
+.layout{display:grid;grid-template-columns:290px 1fr;height:100vh;overflow:hidden}
+
+/* Panel */
+.panel{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--thumb) transparent}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-thumb{background:var(--thumb)}
+.panel-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);z-index:10}
+.panel-title{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim)}
+.panel-name{font-size:13px;font-weight:500;margin-top:2px}
+
+/* Section */
+.section{border-bottom:1px solid var(--border2)}
+.section-header{padding:9px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background 0.1s}
+.section-header:hover{background:var(--panel2)}
+.section-title{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-mid)}
+.section-num{font-size:9px;color:var(--text-dim);margin-right:8px}
+.section-toggle{font-size:9px;color:var(--text-dim);transition:transform 0.2s}
+.section-toggle.open{transform:rotate(180deg)}
+.section-body{padding:0 16px 14px;display:none}
+.section-body.open{display:block}
+.subgroup{margin-top:12px}
+.subgroup-label{font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border2)}
+
+/* Controls */
+.ctrl{display:flex;align-items:center;margin-bottom:7px;gap:6px}
+.ctrl-label{font-size:10px;color:var(--text-mid);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctrl-unit{font-size:9px;color:var(--text-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:1px;background:var(--input-border);width:80px;cursor:pointer;flex-shrink:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--text);border-radius:50%;cursor:pointer}
+input[type=range]::-webkit-slider-thumb:hover{background:var(--red)}
+input[type=number],input[type=text]{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);font-family:var(--mono);font-size:10px;padding:3px 6px;outline:none;-moz-appearance:textfield}
+input[type=number]{width:50px;text-align:right}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]:focus,input[type=text]:focus{border-color:var(--text-dim)}
+select{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);font-family:var(--mono);font-size:10px;padding:3px 6px;outline:none;cursor:pointer}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.toggle-label{font-size:10px;color:var(--text-mid)}
+.toggle{position:relative;width:28px;height:14px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:var(--input-border);cursor:pointer;transition:background 0.2s;border-radius:7px}
+.toggle input:checked+.toggle-track{background:var(--red)}
+.toggle-track::after{content:'';position:absolute;left:2px;top:2px;width:10px;height:10px;background:var(--text);border-radius:50%;transition:transform 0.2s}
+.toggle input:checked+.toggle-track::after{transform:translateX(14px)}
+
+/* Radio */
+.radio-group{display:flex;gap:3px;flex-wrap:wrap}
+.radio-btn{padding:3px 7px;font-family:var(--mono);font-size:9px;letter-spacing:0.05em;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text-mid);cursor:pointer;transition:all 0.12s}
+.radio-btn:hover{border-color:var(--text-dim);color:var(--text)}
+.radio-btn.active{border-color:var(--red);color:var(--red)}
+
+/* Color swatch */
+.color-row{display:flex;align-items:center;margin-bottom:7px;gap:8px}
+.color-swatch{width:18px;height:18px;border:1px solid var(--border);cursor:pointer;flex-shrink:0;transition:transform 0.1s}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.active{outline:2px solid var(--text);outline-offset:2px}
+.color-label{font-size:10px;color:var(--text-mid);flex:1}
+.color-hex{font-size:9px;color:var(--text-dim)}
+
+/* Btn */
+.btn{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;background:none;border:1px solid var(--border);color:var(--text-dim);padding:5px 12px;cursor:pointer;transition:all 0.15s;width:100%;margin-bottom:5px}
+.btn:hover{border-color:var(--text-mid);color:var(--text)}
+.btn-red{border-color:var(--red);color:var(--red)}
+.btn-red:hover{background:var(--red);color:#fff}
+
+/* Preview */
+.preview{padding:40px 48px;overflow-y:auto;padding-bottom:40px}
+.preview-block{background:var(--panel);border:1px solid var(--border);padding:28px 32px;margin-bottom:1px}
+.preview-block-title{font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:16px}
+.css-output{background:var(--bg);border:1px solid var(--border);padding:14px;font-size:10px;color:var(--text-mid);white-space:pre;overflow-x:auto;font-family:var(--mono);line-height:1.7;margin-top:1px}
+
+/* Status */
+.statusbar{position:fixed;bottom:0;left:0;right:0;height:22px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:20px;font-size:9px;color:var(--text-dim);letter-spacing:0.06em;z-index:100}
+.statusbar span{color:var(--text-mid)}
+
+.divider{margin:10px 0 4px;border:none;border-top:1px solid var(--border2)}
+.font-info{font-size:9px;color:var(--text-dim);margin-top:4px;padding:4px 6px;background:var(--bg);border:1px solid var(--border2)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- PANEL -->
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Typography Engine · 排版引擎</div>
+    <div class="panel-name">v2 · mirror-site</div>
+  </div>
+
+  <!-- 00 COLOR SYSTEM -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div><span class="section-num">00</span><span class="section-title">颜色系统 Color System</span></div>
+      <span class="section-toggle open">▾</span>
+    </div>
+    <div class="section-body open">
+      <div class="subgroup">
+        <div class="subgroup-label">文本颜色 Text Color</div>
+        <div class="color-row">
+          <div class="color-swatch active" style="background:#000000" title="#000000" onclick="setTextColor('#000000',this)"></div>
+          <span class="color-label">黑 Black</span>
+          <span class="color-hex">#000000</span>
+        </div>
+        <div class="color-row">
+          <div class="color-swatch" style="background:#e03030" title="#e03030" onclick="setTextColor('#e03030',this)"></div>
+          <span class="color-label">红 Red</span>
+          <span class="color-hex">#e03030</span>
+        </div>
+        <div class="color-row">
+          <div class="color-swatch" style="background:#888580" title="#888580" onclick="setTextColor('#888580',this)"></div>
+          <span class="color-label">灰 Gray</span>
+          <span class="color-hex">#888580</span>
+        </div>
+        <div class="ctrl" style="margin-top:6px">
+          <span class="ctrl-label">自定义 Custom</span>
+          <input type="color" id="customColor" value="#000000" onchange="setTextColor(this.value,null)" style="width:28px;height:22px;border:1px solid var(--input-border);background:none;cursor:pointer;padding:0">
+        </div>
+      </div>
+      <div class="subgroup">
+        <div class="subgroup-label">颜色应用 Apply To</div>
+        <div class="radio-group" id="colorTarget">
+          <div class="radio-btn active" data-val="all" onclick="setRadio('colorTarget',this,'all')">全部</div>
+          <div class="radio-btn" data-val="zh" onclick="setRadio('colorTarget',this,'zh')">中文</div>
+          <div class="radio-btn" data-val="en" onclick="setRadio('colorTarget',this,'en')">英文</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 01 ENGLISH -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div><span class="section-num">01</span><span class="section-title">英文 English · AKGrotesk</span></div>
+      <span class="section-toggle open">▾</span>
+    </div>
+    <div class="section-body open">
+      <div class="font-info">Font: AKGrotesk · 正在使用项目字体</div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">基础 Base</div>
+        <div class="ctrl">
+          <span class="ctrl-label">字号 Size</span>
+          <input type="range" id="enSize" min="8" max="72" value="16" oninput="update('enSize',this.value)">
+          <input type="number" id="enSizeNum" value="16" min="8" max="72" onchange="syncRange('enSize',this.value)">
+          <span class="ctrl-unit">px</span>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">行距 Line Height</span>
+          <input type="range" id="enLH" min="1" max="3" step="0.05" value="1.6" oninput="update('enLH',this.value)">
+          <input type="number" id="enLHNum" value="1.6" min="1" max="3" step="0.05" onchange="syncRange('enLH',this.value)">
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">字重 Weight</span>
+          <select id="enWeight" onchange="update('enWeight',this.value)">
+            <option value="300">Light 300</option>
+            <option value="400" selected>Regular 400</option>
+            <option value="500">Medium 500</option>
+            <option value="700">Bold 700</option>
+          </select>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Italic</span>
+          <label class="toggle"><input type="checkbox" id="enItalic" onchange="update('enItalic',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">字距 Spacing</div>
+        <div class="ctrl">
+          <span class="ctrl-label">Tracking</span>
+          <input type="range" id="enTracking" min="-100" max="300" value="0" oninput="update('enTracking',this.value)">
+          <input type="number" id="enTrackingNum" value="0" onchange="syncRange('enTracking',this.value)">
+          <span class="ctrl-unit">‰</span>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">Word Spacing</span>
+          <input type="range" id="enWordSp" min="-4" max="20" step="0.5" value="0" oninput="update('enWordSp',this.value)">
+          <input type="number" id="enWordSpNum" value="0" step="0.5" onchange="syncRange('enWordSp',this.value)">
+          <span class="ctrl-unit">px</span>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">段落 Paragraph</div>
+        <div class="ctrl">
+          <span class="ctrl-label">对齐 Align</span>
+          <select id="enAlign" onchange="update('enAlign',this.value)">
+            <option value="left">Left</option>
+            <option value="justify" selected>Justify</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">Hanging Punct</span>
+          <div class="radio-group" id="enHang">
+            <div class="radio-btn" data-val="none" onclick="setRadio('enHang',this,'none')">None</div>
+            <div class="radio-btn active" data-val="allow-end" onclick="setRadio('enHang',this,'allow-end')">End</div>
+            <div class="radio-btn" data-val="first" onclick="setRadio('enHang',this,'first')">First</div>
+          </div>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">Optical Margin</span>
+          <div class="radio-group" id="enOptical">
+            <div class="radio-btn active" data-val="none" onclick="setRadio('enOptical',this,'none')">Off</div>
+            <div class="radio-btn" data-val="left" onclick="setRadio('enOptical',this,'left')">Left</div>
+            <div class="radio-btn" data-val="both" onclick="setRadio('enOptical',this,'both')">Both</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">视觉补偿 Optical</div>
+        <div class="ctrl">
+          <span class="ctrl-label">Baseline Shift</span>
+          <input type="range" id="enBaseline" min="-8" max="8" step="0.5" value="0" oninput="update('enBaseline',this.value)">
+          <input type="number" id="enBaselineNum" value="0" step="0.5" onchange="syncRange('enBaseline',this.value)">
+          <span class="ctrl-unit">px</span>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">Text Indent</span>
+          <input type="range" id="enIndent" min="0" max="4" step="0.5" value="0" oninput="update('enIndent',this.value)">
+          <input type="number" id="enIndentNum" value="0" step="0.5" onchange="syncRange('enIndent',this.value)">
+          <span class="ctrl-unit">em</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 CHINESE -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div><span class="section-num">02</span><span class="section-title">中文 Chinese · 筑紫</span></div>
+      <span class="section-toggle open">▾</span>
+    </div>
+    <div class="section-body open">
+      <div class="font-info">Font: 筑紫明朝 / 筑紫ゴシック · 正在使用项目字体</div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">基础 Base</div>
+        <div class="ctrl">
+          <span class="ctrl-label">字号 Size</span>
+          <input type="range" id="zhSize" min="8" max="72" value="17" oninput="update('zhSize',this.value)">
+          <input type="number" id="zhSizeNum" value="17" min="8" max="72" onchange="syncRange('zhSize',this.value)">
+          <span class="ctrl-unit">px</span>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">行距 Line Height</span>
+          <input type="range" id="zhLH" min="1" max="3" step="0.05" value="1.8" oninput="update('zhLH',this.value)">
+          <input type="number" id="zhLHNum" value="1.8" min="1" max="3" step="0.05" onchange="syncRange('zhLH',this.value)">
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">字重 Weight</span>
+          <select id="zhWeight" onchange="update('zhWeight',this.value)">
+            <option value="300">细体 Light</option>
+            <option value="400" selected>常规 Regular</option>
+            <option value="500">中等 Medium</option>
+            <option value="700">粗体 Bold</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">字距 Character Spacing</div>
+        <div class="ctrl">
+          <span class="ctrl-label">字间距 Tracking</span>
+          <input type="range" id="zhTracking" min="-65" max="200" value="-25" oninput="update('zhTracking',this.value)">
+          <input type="number" id="zhTrackingNum" value="-25" min="-65" max="200" onchange="syncRange('zhTracking',this.value)">
+          <span class="ctrl-unit">‰</span>
+        </div>
+        <p style="font-size:9px;color:var(--text-dim);margin:-3px 0 7px;line-height:1.5">最大负值 -65‰，笔画不相碰<br>推荐起始值：-25 至 -50</p>
+        <div class="ctrl">
+          <span class="ctrl-label">字符间距模式</span>
+          <div class="radio-group" id="zhSpaceMode">
+            <div class="radio-btn active" data-val="tracking" onclick="setRadio('zhSpaceMode',this,'tracking')">字距</div>
+            <div class="radio-btn" data-val="halfchar" onclick="setRadio('zhSpaceMode',this,'halfchar')">半字元</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">标点挤压 Punctuation Compression</div>
+        <div class="toggle-row">
+          <span class="toggle-label">启用标点挤压</span>
+          <label class="toggle"><input type="checkbox" id="zhPunctComp" checked onchange="update('zhPunctComp',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">挤压算法</span>
+          <div class="radio-group" id="zhPunctAlgo">
+            <div class="radio-btn" data-val="palt" onclick="setRadio('zhPunctAlgo',this,'palt')">palt</div>
+            <div class="radio-btn active" data-val="chws" onclick="setRadio('zhPunctAlgo',this,'chws')">chws</div>
+            <div class="radio-btn" data-val="halt" onclick="setRadio('zhPunctAlgo',this,'halt')">halt</div>
+          </div>
+        </div>
+        <p style="font-size:9px;color:var(--text-dim);margin:-3px 0 7px;line-height:1.5">palt=比例间距 chws=上下文半宽 halt=强制半宽</p>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">行尾悬挂 Line End Hang</div>
+        <div class="toggle-row">
+          <span class="toggle-label">句号悬挂 。</span>
+          <label class="toggle"><input type="checkbox" id="zhPeriodHang" checked onchange="update('zhPeriodHang',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">引号悬挂 「」</span>
+          <label class="toggle"><input type="checkbox" id="zhQuoteHang" checked onchange="update('zhQuoteHang',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">括号挤压 （）</span>
+          <label class="toggle"><input type="checkbox" id="zhBracket" onchange="update('zhBracket',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">标点规则 Punctuation Rules</div>
+        <div class="toggle-row">
+          <span class="toggle-label">句号半格 。不占满</span>
+          <label class="toggle"><input type="checkbox" id="zhPeriodHalf" checked onchange="update('zhPeriodHalf',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">逗号压缩 ，</span>
+          <label class="toggle"><input type="checkbox" id="zhComma" checked onchange="update('zhComma',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">顿号压缩 、</span>
+          <label class="toggle"><input type="checkbox" id="zhDunhao" onchange="update('zhDunhao',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">破折号压缩 ——</span>
+          <label class="toggle"><input type="checkbox" id="zhDash" onchange="update('zhDash',this.checked)"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-label">段落 Paragraph</div>
+        <div class="ctrl">
+          <span class="ctrl-label">对齐 Align</span>
+          <select id="zhAlign" onchange="update('zhAlign',this.value)">
+            <option value="left">左对齐</option>
+            <option value="justify" selected>两端对齐</option>
+            <option value="justify-all">强制两端</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">断行规则</span>
+          <select id="zhLineBreak" onchange="update('zhLineBreak',this.value)">
+            <option value="strict" selected>Strict 严格</option>
+            <option value="normal">Normal</option>
+            <option value="loose">Loose 宽松</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">首行缩进</span>
+          <input type="range" id="zhIndent" min="0" max="4" step="0.5" value="0" oninput="update('zhIndent',this.value)">
+          <input type="number" id="zhIndentNum" value="0" step="0.5" onchange="syncRange('zhIndent',this.value)">
+          <span class="ctrl-unit">em</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 APPLY -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div><span class="section-num">03</span><span class="section-title">应用 Apply</span></div>
+      <span class="section-toggle open">▾</span>
+    </div>
+    <div class="section-body open">
+      <div class="subgroup">
+        <div class="subgroup-label">CSS 选择器 Selector</div>
+        <input type="text" id="enSelector" value=".text-en, p, .body-text" placeholder="英文选择器" style="width:100%;margin-bottom:5px">
+        <input type="text" id="zhSelector" value=".text-zh, .cjk" placeholder="中文选择器" style="width:100%;margin-bottom:10px">
+        <button class="btn btn-red" onclick="copyCSS()">复制 CSS Copy</button>
+        <button class="btn" onclick="resetAll()">重置 Reset All</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PREVIEW -->
+<div class="preview">
+  <div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:20px">实时预览 Live Preview</div>
+
+  <div class="preview-block">
+    <div class="preview-block-title">英文正文 · AKGrotesk</div>
+    <div id="prev-en" contenteditable="true" style="max-width:560px;outline:none">
+      "yet to come" takes the mirror as its point of entry, constructing a Looking-Glass World as an experiential space for algorithmic logic. When the algorithm misreads a mirror image as real space, the boundary between reality and simulacrum dissolves — this work invites the viewer to experience the compression and disorientation of the subject within an image-proliferating logic that cannot end.
+    </div>
+  </div>
+
+  <div class="preview-block">
+    <div class="preview-block-title">中文正文 · 筑紫</div>
+    <div id="prev-zh" contenteditable="true" style="max-width:560px;outline:none">
+      「yet to come · 尚未来临之物」以镜子为切入点，构建「镜中世界」作为算法逻辑的体验空间。通过「镜中宣言」确立五条空间规则，并以书与网页作为两种穿越媒介，让观者在真实与虚拟之间往返。当算法将镜像误读为真实空间，真实与拟像之间的边界消失——本作品让观者在无法终结的图像增殖逻辑中体验主体的压缩与失向。
+    </div>
+  </div>
+
+  <div class="preview-block">
+    <div class="preview-block-title">混排 · Mixed</div>
+    <div id="prev-mix" contenteditable="true" style="max-width:560px;outline:none">
+      当iPhone深度扫描（3D LiDAR Scanner）将镜面误读为真实空间（real space），算法的判断逻辑——可测量的即真实的——在此刻意外地显形：这是Jean Baudrillard所描述的「拟像的旋进」（The Precession of Simulacra）在机器视觉层面的一次技术证明。
+    </div>
+  </div>
+
+  <pre class="css-output" id="css-out">/* 调整参数后自动生成 */</pre>
+</div>
+</div>
+
+<div class="statusbar">
+  <div>EN <span id="s-en">16px</span></div>
+  <div>ZH <span id="s-zh">17px</span></div>
+  <div>EN tracking <span id="s-ent">0‰</span></div>
+  <div>ZH tracking <span id="s-zht">-25‰</span></div>
+  <div>Color <span id="s-col">#000000</span></div>
+</div>
+
+<script>
+const S = {
+  enSize:16,enLH:1.6,enWeight:400,enItalic:false,enTracking:0,enWordSp:0,
+  enAlign:'justify',enHang:'allow-end',enOptical:'none',enBaseline:0,enIndent:0,
+  zhSize:17,zhLH:1.8,zhWeight:400,zhTracking:-25,zhSpaceMode:'tracking',
+  zhPunctComp:true,zhPunctAlgo:'chws',zhPeriodHang:true,zhQuoteHang:true,
+  zhBracket:false,zhPeriodHalf:true,zhComma:true,zhDunhao:false,zhDash:false,
+  zhAlign:'justify',zhLineBreak:'strict',zhIndent:0,
+  textColor:'#000000',colorTarget:'all',
+};
+
+function toggleSection(h){
+  const b=h.nextElementSibling,t=h.querySelector('.section-toggle');
+  const o=b.classList.toggle('open');t.classList.toggle('open',o);
+}
+function update(k,v){
+  if(typeof v==='string'&&v!==''&&!isNaN(+v))v=parseFloat(v);
+  S[k]=v;
+  const n=document.getElementById(k+'Num');if(n)n.value=v;
+  const r=document.getElementById(k);if(r&&r.type==='range')r.value=v;
+  render();genCSS();updateStatus();
+}
+function syncRange(k,v){update(k,v);}
+function setRadio(g,el,v){
+  document.querySelectorAll(`#${g} .radio-btn`).forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');S[g]=v;render();genCSS();
+}
+function setTextColor(hex,swatch){
+  S.textColor=hex;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+  if(swatch)swatch.classList.add('active');
+  document.getElementById('s-col').textContent=hex;
+  render();genCSS();
+}
+
+function buildFFS(zh){
+  const f=[];
+  if(zh){
+    if(S.zhPunctComp)f.push(`"${S.zhPunctAlgo}" 1`);
+    if(S.zhPeriodHalf)f.push('"calt" 1');
+  }
+  return f.length?f.join(', '):'normal';
+}
+
+function render(){
+  const en=document.getElementById('prev-en');
+  const zh=document.getElementById('prev-zh');
+  const mix=document.getElementById('prev-mix');
+  const col=S.textColor;
+
+  // EN
+  Object.assign(en.style,{
+    fontSize:S.enSize+'px',lineHeight:S.enLH,fontWeight:S.enWeight,
+    fontStyle:S.enItalic?'italic':'normal',
+    letterSpacing:(S.enTracking/1000)+'em',wordSpacing:S.enWordSp+'px',
+    textAlign:S.enAlign,hangingPunctuation:S.enHang,
+    textIndent:S.enIndent?S.enIndent+'em':'',
+    color:(S.colorTarget==='all'||S.colorTarget==='en')?col:'',
+  });
+
+  // ZH
+  const zhFFS=buildFFS(true);
+  Object.assign(zh.style,{
+    fontSize:S.zhSize+'px',lineHeight:S.zhLH,fontWeight:S.zhWeight,
+    letterSpacing:(S.zhTracking/1000)+'em',
+    textAlign:S.zhAlign,lineBreak:S.zhLineBreak,
+    textIndent:S.zhIndent?S.zhIndent+'em':'',
+    hangingPunctuation:(S.zhPeriodHang||S.zhQuoteHang)?'allow-end':'none',
+    fontFeatureSettings:zhFFS,
+    color:(S.colorTarget==='all'||S.colorTarget==='zh')?col:'',
+  });
+
+  // MIX
+  Object.assign(mix.style,{
+    fontSize:S.enSize+'px',lineHeight:S.enLH,
+    letterSpacing:(S.enTracking/1000)+'em',
+    textAlign:S.enAlign,
+    color:(S.colorTarget==='all')?col:'',
+  });
+}
+
+function genCSS(){
+  const enSel=document.getElementById('enSelector').value||'.text-en';
+  const zhSel=document.getElementById('zhSelector').value||'.text-zh';
+  const zhFFS=buildFFS(true);
+  const css=
+`/* ── Typography Engine · mirror-site ──
+   Fonts: AKGrotesk (EN) · 筑紫 (ZH)
+   Generated by Typography Engine v2      */
+
+/* English · AKGrotesk */
+${enSel} {
+  font-size: ${S.enSize}px;
+  font-weight: ${S.enWeight};
+  font-style: ${S.enItalic?'italic':'normal'};
+  line-height: ${S.enLH};
+  letter-spacing: ${(S.enTracking/1000).toFixed(4)}em;
+  word-spacing: ${S.enWordSp}px;
+  text-align: ${S.enAlign};${S.enHang!=='none'?`
+  hanging-punctuation: ${S.enHang};`:''}${S.enIndent?`
+  text-indent: ${S.enIndent}em;`:''}`+
+(S.colorTarget==='all'||S.colorTarget==='en'?`
+  color: ${S.textColor};`:'')
++`
+}
+
+/* Chinese · 筑紫 */
+${zhSel} {
+  font-size: ${S.zhSize}px;
+  font-weight: ${S.zhWeight};
+  line-height: ${S.zhLH};
+  letter-spacing: ${(S.zhTracking/1000).toFixed(4)}em;
+  text-align: ${S.zhAlign};
+  line-break: ${S.zhLineBreak};${S.zhIndent?`
+  text-indent: ${S.zhIndent}em;`:''}${(S.zhPeriodHang||S.zhQuoteHang)?`
+  hanging-punctuation: allow-end;`:''}${zhFFS!=='normal'?`
+  font-feature-settings: ${zhFFS};`:''}`+
+(S.colorTarget==='all'||S.colorTarget==='zh'?`
+  color: ${S.textColor};`:'')
++`
+}`;
+  document.getElementById('css-out').textContent=css;
+}
+
+function copyCSS(){
+  navigator.clipboard.writeText(document.getElementById('css-out').textContent)
+    .then(()=>{const b=event.target;b.textContent='已复制 ✓';setTimeout(()=>b.textContent='复制 CSS Copy',1500)});
+}
+function resetAll(){location.reload();}
+function updateStatus(){
+  document.getElementById('s-en').textContent=S.enSize+'px';
+  document.getElementById('s-zh').textContent=S.zhSize+'px';
+  document.getElementById('s-ent').textContent=S.enTracking+'‰';
+  document.getElementById('s-zht').textContent=S.zhTracking+'‰';
+}
+
+render();genCSS();updateStatus();
+</script>
+</body>
+</html>
