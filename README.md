@@ -4,6 +4,11 @@ An interactive mirror-themed web experience built with Next.js, React, Framer Mo
 
 Live site: <https://yoyiseeee.github.io/rorrim-site/>
 
+## Active homepage
+
+The only active homepage is `app/components/prototypes/InfiniteNodeMapPrototype.tsx`, mounted by `app/page.tsx`.
+The earlier `HomeLanding.tsx` prototype has been removed from the active repository so it cannot be mistaken for the production homepage.
+
 ## Local development
 
 ```bash

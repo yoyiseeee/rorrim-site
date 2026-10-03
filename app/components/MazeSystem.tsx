@@ -218,7 +218,7 @@ export function MazeLayer({
 
         if (isExit) { navigateBack(); return; }
 
-        // Forward gesture — same priority order as HomeLanding
+        // Forward gesture — preserve the landing navigation priority order.
         let dir: Direction | null = null;
         if      (dx < -T && dy >  T) dir = 'topRight';
         else if (dx < -T && dy < -T) dir = 'bottomRight';

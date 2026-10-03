@@ -39,52 +39,6 @@ body {
   box-sizing: border-box;
 }
 
-.static-home-viewport {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  background: #fff;
-  user-select: none;
-  cursor: default;
-}
-
-.static-home-viewport:active {
-  cursor: grabbing;
-}
-
-.static-home-stage {
-  position: absolute;
-  inset: 0;
-  width: 100vw;
-  height: 200vh;
-  overflow: visible;
-  background: #fff;
-}
-
-.static-home-title {
-  position: absolute;
-  display: block;
-  height: auto;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-  transform-origin: 0 0;
-}
-
-.static-home-layer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2;
-  overflow: visible;
-}
-
-.static-home-title-alphabet {
-  pointer-events: auto;
-}
-
 .alphabet-chapter-panel {
   position: absolute;
   left: 0;
